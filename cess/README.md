@@ -62,7 +62,10 @@
    ```bash
    ./install.sh
    ```
+   安装成功如下图所示
 
+   ![image](https://github.com/user-attachments/assets/757f920c-50cb-4828-9fad-307ed6c7a76c)
+     
    如果安装失败，请参考 [故障排除指南](https://doc.cess.network/cess-miners/storage-miner/troubleshooting)。
 
 ### 3. 配置 CESS 客户端
@@ -95,7 +98,10 @@
 
    获取测试代币：[领水](https://cess.network/faucet.html)  
    质押：[质押](https://cess.network/light-wallet/)  
-   RPC 地址查看：[RPC 地址](https://scan.cess.network/rpc)
+   RPC 地址查看：[RPC 地址](https://scan.cess.network/rpc)  
+   运行成功如下图
+   
+   ![image](https://github.com/user-attachments/assets/274cca27-a776-45af-b2d6-551bcdf4e3ce)  
 
 ### 4. 启动 CESS 存储节点
 
@@ -105,7 +111,7 @@ sudo cess start
 
 启动成功后如图所示：
 
-![启动成功](https://github.com/user-attachments/assets/6a7b6297-b99d-4955-8af3-da8cf2954c6e)
+![image](https://github.com/user-attachments/assets/c14a36db-ea84-4302-9ad8-436384246ec2)  
 
 ### 5. 状态检查
 
@@ -113,13 +119,18 @@ sudo cess start
 
    访问 [Polkadot JS](https://polkadot.js.org/apps/#/accounts)，连接质押的 CESS 钱包。
 
-2. **查看存储节点状态**
+   ![image](https://github.com/user-attachments/assets/69287292-4309-4253-84ce-fe6860ff1072)
+
+3. **查看存储节点状态**
 
    ```bash
    sudo cess miner stat
    ```
+   返回结果如下
 
-3. **查看存储节点日志**
+   ![image](https://github.com/user-attachments/assets/cc7eb4e0-9766-4482-ae18-a2f6485e2ac7)
+   
+4. **查看存储节点日志**
 
    ```bash
    docker logs miner
@@ -127,7 +138,7 @@ sudo cess start
 
    返回日志信息如图所示：
 
-   ![日志信息](https://github.com/user-attachments/assets/c365000b-3680-4ac3-9c6c-bec38d75e18c)
+   ![image](https://github.com/user-attachments/assets/a695a85e-6db1-4f33-ad9e-6076acb766f6)  
 
 ### 6. 其他操作
 
