@@ -88,8 +88,8 @@ pm2 logs story-client
 查看客户端的日志信息，检查节点状况  
 
 ```bash
-rm -rf ${GETH_DATA_ROOT} && pm2 start /usr/local/bin/geth --name story-geth -- --iliad --syncmode full
-rm -rf ${STORY_DATA_ROOT} && /usr/local/bin/story init --network iliad && pm2 start /usr/local/bin/story --name story-client -- run
+pm2 stop story-geth && rm -rf ${GETH_DATA_ROOT} && pm2 start /usr/local/bin/geth --name story-geth -- --iliad --syncmode full
+pm2 stop story-client && rm -rf ${STORY_DATA_ROOT} && /usr/local/bin/story init --network iliad && pm2 start /usr/local/bin/story --name story-client -- run
 ```
 清除节点状态并重新启动节点  
 
