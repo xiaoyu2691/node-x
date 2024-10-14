@@ -56,8 +56,8 @@ tar -xzf story-linux-amd64-0.9.13-b4c7db1.tar.gz
 
 ### 2、设置默认数据文件夹及其客户端设置  
 ```bash
-echo "Story数据根: ${STORY_DATA_ROOT}"
-echo "Geth数据根: ${GETH_DATA_ROOT}"
+export STORY_DATA_ROOT="~/.story/story"
+export GETH_DATA_ROOT="~/.story/geth"
 ```
 设置默认数据文件夹  
 
@@ -76,7 +76,8 @@ pm2 start /usr/local/bin/geth --name story-geth -- --iliad --syncmode full
 
 ```bash
 cp /root/story-linux-amd64-0.9.13-b4c7db1/story /usr/local/bin
-/usr/local/bin/story init --network iliad
+cd /usr/local/bin
+./story init --network iliad
 pm2 start /usr/local/bin/story --name story-client -- run
 ```
 初始化共识客户端，使用pm2运行并将进程命名为story-client，到这儿节点就安装完成了。  
