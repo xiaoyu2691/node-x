@@ -82,6 +82,8 @@ cd /usr/local/bin
 ./story init --network iliad
 pm2 start /usr/local/bin/story --name story-client -- run
 ```
+安装完成后返回  
+![999d7d9b08e5688d956f3f1cc0eedcc](https://github.com/user-attachments/assets/644fb51a-1683-4d57-865c-d55b5cae5a41)  
 
 ## 检查节点状况
 查看客户端的日志信息，检查节点状况：
@@ -136,7 +138,19 @@ cd /usr/local/bin
 ```
 
 ## 共识层客户端版本的更新
+### 1、检查区块高度  
 检查 Story 节点状态，查看其区块高度，需要达到626,575高度才能升级到0.10.*版本，具体可访问[所需区块高度](https://medium.com/story-protocol/story-v0-10-0-available-for-coming-upgrade-e2f9cb10443b)
 ```bash
 story status
 ```
+### 2、版本升级  
+当达到既定的区块高度，则可以开始进行升级操作。  
+首先，停止共识层客户端
+```bash
+pm2 stop story-client
+```
+然后下载0.10.2版本（目前0.10版本中的最新版本），请访问[最新版本](https://github.com/piplabs/story/releases)  
+```bash
+wget https://story-geth-binaries.s3.us-west-1.amazonaws.com/story-public/story-linux-amd64-0.10.2-f7b649d.tar.gz
+```
+
