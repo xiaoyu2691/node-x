@@ -123,6 +123,8 @@ story status
 可以尝试  
 ```bash
 rm -rf ${STORY_DATA_ROOT}/data/* && \
+```
+```bash
 echo '{"height": "0", "round": 0, "step": 0}' > ${STORY_DATA_ROOT}/data/priv_validator_state.json
 ```
 ```bash
