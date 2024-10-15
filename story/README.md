@@ -38,6 +38,7 @@ apt install curl wget jq make gcc nano -y
 curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash -
 sudo apt-get install -y nodejs
 ```
+安装npm  
 ```bash
 sudo apt-get install -y npm
 ```
@@ -100,6 +101,8 @@ pm2 start /usr/local/bin/story --name story-client -- run
 ```bash
 story status
 ```
+返回结果  
+![image](https://github.com/user-attachments/assets/e67d37a9-c220-4bb7-be9f-33dfacb68db6)
 
 若出现错误，情况如下：  
 ![4be4e2b46eb277694ed07ead358baac](https://github.com/user-attachments/assets/0d820836-66bb-41db-a2f3-a337ad29be14)  
@@ -116,7 +119,7 @@ pm2 logs
 返回结果  
 ![398479ece825eee2a5752fbe78456d1](https://github.com/user-attachments/assets/65b6cc25-fb89-4ac4-82d9-11a13a238884)  
 
-清除节点状态并重新启动节点：
+如果需要清除节点状态并重新启动节点，则输入以下命令：
 ```bash
 pm2 stop story-geth && rm -rf ${GETH_DATA_ROOT} && pm2 start /usr/local/bin/geth --name story-geth -- --iliad --syncmode full
 pm2 stop story-client && rm -rf ${STORY_DATA_ROOT} && /usr/local/bin/story init --network iliad && pm2 start /usr/local/bin/story --name story-client -- run
@@ -147,9 +150,10 @@ PRIVATE_KEY=按 i 键输入你的私钥，然后按 Esc 键输入 “：wq” �
 cd /usr/local/bin
 ./story validator export
 ```
-记得将密钥保存下来  
+**记得将密钥保存下来**  
 
 创建验证器，创建成功后会有一个网址返回，请保存下来以便于后期监控检点状态。  
+**记得保存网址**  
 ```bash
 ./story validator create --stake 输入你要质押的 IP 数并乘 1000000000000000000
 ```
@@ -168,7 +172,9 @@ cd /usr/local/bin
 
 ## 共识层客户端版本的更新
 ### 1. 检查区块高度  
-检查 Story 节点状态，查看其区块高度，需要达到 626,575 高度才能升级到 0.10.* 版本，具体可访问 [所需区块高度](https://medium.com/story-protocol/story-v0-10-0-available-for-coming-upgrade-e2f9cb10443b)
+检查 Story 节点状态，查看其区块高度，需要达到 626,575 高度才能升级到 0.10.* 版本，需要达到1325860高度才能升级到0.11.*版本。  
+具体可访问[升级到0.10.*所需区块高度](https://medium.com/story-protocol/story-v0-10-0-available-for-coming-upgrade-e2f9cb10443b)  
+具体可访问[升级到0.11.*所需区块高度](https://medium.com/story-protocol/story-v0-10-0-node-upgrade-guide-42e2fbcfcb9a)  
 ```bash
 story status
 ```
@@ -176,9 +182,7 @@ story status
 ![image](https://github.com/user-attachments/assets/1d5e163e-381c-4e27-92d6-887f421c7044)  
 
 ### 2. 版本升级（0.9.13——>0.10.2）   
-当
-
-达到既定的区块高度（626575），则可以开始进行升级操作。  
+当达到既定的区块高度（626575），则可以开始进行升级操作。  
 首先，停止共识层客户端  
 ```bash
 pm2 stop story-client
@@ -201,6 +205,7 @@ pm2 logs story-client
 ```
 
 ### 3. 版本升级（0.10.2——>0.11.0） 
+当达到既定的区块高度（1325860），则可以开始进行升级操作。  
 首先，停止共识层客户端  
 ```bash
 pm2 stop story-client
@@ -222,9 +227,9 @@ pm2 start story-client
 pm2 logs story-client
 ```
 
-## 实时监控节点运行状态  
-### 通过仪表盘查看节点运行状态（就是创建验证器时返回的网址）  
-将质押的钱包地址输入并返回，就能够在下方查看你的节点状态。  
+## 质押状态  
+### 通过验证器返回的网址查看质押情况   
+将质押的钱包地址输入并返回，就能够在下方查看你的质押情况，下图仅供参考：  
 ![image](https://github.com/user-attachments/assets/65c2773d-33e5-4000-8b75-14f1ce109ba1)  
 
 ---
