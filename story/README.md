@@ -8,7 +8,7 @@
 
 ## 前置条件
 - Ubuntu 系统原生设备 / Ubuntu 虚拟机设备 / Mac 设备
-- 一个 ETH 钱包地址
+- 一个 ETH 钱包私钥
 
 ## 推荐运行配置如下：
 
@@ -35,8 +35,13 @@ apt install curl wget jq make gcc nano -y
 ```
 安装 Node.js 以及 npm，如已安装则跳过：
 ```bash
-sudo apt install nodejs npm
+curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash -
+sudo apt-get install -y nodejs
 ```
+```bash
+sudo apt-get install -y npm
+```
+
 安装 pm2，如已安装则跳过：
 ```bash
 npm install pm2@latest -g
@@ -87,21 +92,22 @@ pm2 start /usr/local/bin/story --name story-client -- run
 安装完成后返回  
 ![999d7d9b08e5688d956f3f1cc0eedcc](https://github.com/user-attachments/assets/644fb51a-1683-4d57-865c-d55b5cae5a41)  
 
+  节点安装完成！！！
+
 ## 检查节点状况
 ### 1. 查看节点状态
 查看节点状态  
 ```bash
 story status
 ```
+
 若出现错误，情况如下：  
 ![4be4e2b46eb277694ed07ead358baac](https://github.com/user-attachments/assets/0d820836-66bb-41db-a2f3-a337ad29be14)  
 可以尝试  
 ```bash
-cd .story
-cd story
-cd data
-echo '{"height": "0", "round": 0, "step": 0}' > priv_validator_state.json
-pm2 restart all
+rm -rf ${STORY_DATA_ROOT}/data/* && \
+echo '{"height": "0", "round": 0, "step": 0}' > ${STORY_DATA_ROOT}/data/priv_validator_state.json
+pm2 restart story-client
 ```
 查看客户端的日志信息，检查节点状况：
 ```bash
