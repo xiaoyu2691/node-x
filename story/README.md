@@ -36,6 +36,8 @@ apt install curl wget jq make gcc nano -y
 安装 Node.js，如已安装则跳过：
 ```bash
 curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash -
+```
+```bash
 sudo apt-get install -y nodejs
 ```
 安装npm，如已安装则跳过：  
@@ -62,32 +64,44 @@ wget https://story-geth-binaries.s3.us-west-1.amazonaws.com/story-public/story-l
 解压已下载的安装包：
 ```bash
 tar -xzf geth-linux-amd64-0.9.3-b224fdf.tar.gz
+```
+```bash
 tar -xzf story-linux-amd64-0.9.13-b4c7db1.tar.gz
 ```
-
 ### 2. 设置默认数据文件夹及其客户端设置
 设置默认数据文件夹：
 ```bash
 export STORY_DATA_ROOT="~/.story/story"
+```
+```bash
 export GETH_DATA_ROOT="~/.story/geth"
 ```
 如果你是在 macOS 系统中部署，则需要去除下载文件的隔离属性，如果不是则跳过：
 ```bash
 sudo xattr -rd com.apple.quarantine ./geth
+```
+```bash
 sudo xattr -rd com.apple.quarantine ./story
 ```
-
 ### 3. 初始化客户端并运行
 将 `/root/geth-linux-amd64-0.9.3-b224fdf/geth` 文件复制到本地的二进制文件夹下，并使用 pm2 运行并将进程命名为 story-geth，并设置同步：
 ```bash
 cp /root/geth-linux-amd64-0.9.3-b224fdf/geth /usr/local/bin
+```
+```bash
 pm2 start /usr/local/bin/geth --name story-geth -- --iliad --syncmode full
 ```
 初始化共识客户端，使用 pm2 运行并将进程命名为 story-client，到这里节点就安装完成了：
 ```bash
 cp /root/story-linux-amd64-0.9.13-b4c7db1/story /usr/local/bin
+```
+```bash
 cd /usr/local/bin
+```
+```bash
 ./story init --network iliad
+```
+```bash
 pm2 start /usr/local/bin/story --name story-client -- run
 ```
 安装完成后返回  
@@ -110,6 +124,8 @@ story status
 ```bash
 rm -rf ${STORY_DATA_ROOT}/data/* && \
 echo '{"height": "0", "round": 0, "step": 0}' > ${STORY_DATA_ROOT}/data/priv_validator_state.json
+```
+```bash
 pm2 restart story-client
 ```
 查看客户端的日志信息，检查节点状况：
@@ -122,6 +138,8 @@ pm2 logs
 如果需要清除节点状态并重新启动节点，则输入以下命令：
 ```bash
 pm2 stop story-geth && rm -rf ${GETH_DATA_ROOT} && pm2 start /usr/local/bin/geth --name story-geth -- --iliad --syncmode full
+```
+```bash
 pm2 stop story-client && rm -rf ${STORY_DATA_ROOT} && /usr/local/bin/story init --network iliad && pm2 start /usr/local/bin/story --name story-client -- run
 ```
 
