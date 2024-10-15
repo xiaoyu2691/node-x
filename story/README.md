@@ -35,7 +35,7 @@ apt install curl wget jq make gcc nano -y
 ```
 安装 Node.js，如已安装则跳过：
 ```bash
-curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash -
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
 ```
 ```bash
 sudo apt-get install -y nodejs
