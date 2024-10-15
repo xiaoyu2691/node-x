@@ -1,4 +1,6 @@
-# Story Protocol验证者节点搭建指南
+# Story Protocol 验证者节点搭建指南  
+
+互联网为创意作品提供了前所未有的传播和混合方式，但现有的知识产权（IP）体系却无法有效支持这一转变。Story Protocol 旨在创建一个开放且无摩擦的 IP 基础设施，允许创作者追踪其作品的起源和发展，同时实现灵活的许可系统。这一协议通过区块链技术确保 IP 的透明性和真实性，促进创作者与社区的互动。随着人工智能和新创作模式的兴起，Story Protocol 能够帮助创作者在网络化环境中获取价值，推动创意产业的未来发展。通过构建一个新的生态系统，IP 可以变得流动，促进资本形成和共同创作。
 
 本指南将逐步引导你完成 Story 节点的搭建过程。你将学习如何：
 - 安装并配置 Story 节点
@@ -86,11 +88,28 @@ pm2 start /usr/local/bin/story --name story-client -- run
 ![999d7d9b08e5688d956f3f1cc0eedcc](https://github.com/user-attachments/assets/644fb51a-1683-4d57-865c-d55b5cae5a41)  
 
 ## 检查节点状况
+### 1. 查看节点状态
+查看节点状态  
+```bash
+story status
+```
+若出现错误，情况如下：  
+![4be4e2b46eb277694ed07ead358baac](https://github.com/user-attachments/assets/0d820836-66bb-41db-a2f3-a337ad29be14)  
+可以尝试  
+```bash
+cd .story
+cd story
+cd data
+echo '{"height": "0", "round": 0, "step": 0}' > priv_validator_state.json
+pm2 restart all
+```
 查看客户端的日志信息，检查节点状况：
 ```bash
-pm2 logs story-geth
-pm2 logs story-client
+pm2 logs
 ```
+返回结果  
+![398479ece825eee2a5752fbe78456d1](https://github.com/user-attachments/assets/65b6cc25-fb89-4ac4-82d9-11a13a238884)  
+
 清除节点状态并重新启动节点：
 ```bash
 pm2 stop story-geth && rm -rf ${GETH_DATA_ROOT} && pm2 start /usr/local/bin/geth --name story-geth -- --iliad --syncmode full
@@ -113,6 +132,8 @@ vim .env
 # ~/story/.env" > .env
 PRIVATE_KEY=按 i 键输入你的私钥，然后按 Esc 键输入 “：wq” 保存并退出
 ```
+如下图所示  
+![51f8b860e5d88866c95ea1a3b2104d1](https://github.com/user-attachments/assets/6cbc74a5-b0d7-432a-b2a2-0c2ec2792a62)  
 
 ### 2. 创建验证器以及质押操作
 导出验证器密钥：
@@ -120,7 +141,9 @@ PRIVATE_KEY=按 i 键输入你的私钥，然后按 Esc 键输入 “：wq” �
 cd /usr/local/bin
 ./story validator export
 ```
-创建验证器：
+记得将密钥保存下来  
+
+创建验证器，创建成功后会有一个网址返回，请保存下来以便于后期监控检点状态。  
 ```bash
 ./story validator create --stake 输入你要质押的 IP 数并乘 1000000000000000000
 ```
@@ -138,19 +161,64 @@ cd /usr/local/bin
 ```
 
 ## 共识层客户端版本的更新
-### 1、检查区块高度  
-检查 Story 节点状态，查看其区块高度，需要达到626,575高度才能升级到0.10.*版本，具体可访问[所需区块高度](https://medium.com/story-protocol/story-v0-10-0-available-for-coming-upgrade-e2f9cb10443b)
+### 1. 检查区块高度  
+检查 Story 节点状态，查看其区块高度，需要达到 626,575 高度才能升级到 0.10.* 版本，具体可访问 [所需区块高度](https://medium.com/story-protocol/story-v0-10-0-available-for-coming-upgrade-e2f9cb10443b)
 ```bash
 story status
 ```
-### 2、版本升级  
-当达到既定的区块高度，则可以开始进行升级操作。  
-首先，停止共识层客户端
+区块高度如图所示  
+![image](https://github.com/user-attachments/assets/1d5e163e-381c-4e27-92d6-887f421c7044)  
+
+### 2. 版本升级（0.9.13——>0.10.2）   
+当
+
+达到既定的区块高度（626575），则可以开始进行升级操作。  
+首先，停止共识层客户端  
 ```bash
 pm2 stop story-client
 ```
-然后下载0.10.2版本（目前0.10版本中的最新版本），请访问[最新版本](https://github.com/piplabs/story/releases)  
+然后下载并解压 0.10.2 版本（目前 0.10 版本中的最新版本），请访问 [最新版本](https://github.com/piplabs/story/releases)  
 ```bash
-wget https://story-geth-binaries.s3.us-west-1.amazonaws.com/story-public/story-linux-amd64-0.10.2-f7b649d.tar.gz
+wget https://story-geth-binaries.s3.us-west-1.amazonaws.com/story-public/story-linux-amd64-0.10.2-f7b649d.tar.gz && tar -xzf story-linux-amd64-0.10.2-f7b649d.tar.gz
+```
+同时将 story-linux-amd64-0.10.2-f7b649d 文件夹下的 story 文件复制到 /usr/local/bin 文件夹下
+```bash
+cp /root/story-linux-amd64-0.10.2-f7b649d/story /usr/local/bin
+```
+然后启动客户端  
+```bash
+pm2 start story-client
+```
+最后访问日志信息，查看是否正常同步运行  
+```bash
+pm2 logs story-client
 ```
 
+### 3. 版本升级（0.10.2——>0.11.0） 
+首先，停止共识层客户端  
+```bash
+pm2 stop story-client
+```
+然后下载 0.11.0 版本（目前 0.11 版本中的最新版本），请访问 [最新版本](https://github.com/piplabs/story/releases)  
+```bash
+wget https://story-geth-binaries.s3.us-west-1.amazonaws.com/story-public/story-linux-amd64-0.11.0-aac4bfe.tar.gz &&  tar -xzf story-linux-amd64-0.11.0-aac4bfe.tar.gz
+```
+同时将 story-linux-amd64-0.11.0-aac4bfe 文件夹下的 story 文件复制到 /usr/local/bin 文件夹下
+```bash
+cp /root/story-linux-amd64-0.11.0-aac4bfe/story /usr/local/bin
+```
+然后启动客户端  
+```bash
+pm2 start story-client
+```
+最后访问日志信息，查看是否正常同步运行  
+```bash
+pm2 logs story-client
+```
+
+## 实时监控节点运行状态  
+### 通过仪表盘查看节点运行状态（就是创建验证器时返回的网址）  
+将质押的钱包地址输入并返回，就能够在下方查看你的节点状态。  
+![image](https://github.com/user-attachments/assets/65c2773d-33e5-4000-8b75-14f1ce109ba1)  
+
+---
