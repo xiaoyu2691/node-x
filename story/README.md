@@ -84,7 +84,7 @@ sudo xattr -rd com.apple.quarantine ./geth
 sudo xattr -rd com.apple.quarantine ./story
 ```
 ### 3. 初始化客户端并运行
-将 `/root/geth-linux-amd64-0.9.3-b224fdf/geth` 文件复制到本地的二进制文件夹下，并使用 pm2 运行并将进程命名为 story-geth，并设置同步：
+将 `/root/geth-linux-amd64-0.9.3-b224fdf/geth` 文件复制到本地的二进制文件夹下，使用 pm2 运行并将进程命名为 story-geth，并设置同步：
 ```bash
 cp /root/geth-linux-amd64-0.9.3-b224fdf/geth /usr/local/bin
 ```
