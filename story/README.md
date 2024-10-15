@@ -33,12 +33,12 @@ apt update && apt upgrade -y
 ```bash
 apt install curl wget jq make gcc nano -y
 ```
-安装 Node.js 以及 npm，如已安装则跳过：
+安装 Node.js，如已安装则跳过：
 ```bash
 curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash -
 sudo apt-get install -y nodejs
 ```
-安装npm  
+安装npm，如已安装则跳过：  
 ```bash
 sudo apt-get install -y npm
 ```
@@ -93,7 +93,7 @@ pm2 start /usr/local/bin/story --name story-client -- run
 安装完成后返回  
 ![999d7d9b08e5688d956f3f1cc0eedcc](https://github.com/user-attachments/assets/644fb51a-1683-4d57-865c-d55b5cae5a41)  
 
-  节点安装完成！！！
+  **节点安装完成！！！**
 
 ## 检查节点状况
 ### 1. 查看节点状态
@@ -101,7 +101,7 @@ pm2 start /usr/local/bin/story --name story-client -- run
 ```bash
 story status
 ```
-返回结果  
+返回结果，可能刚开始会显示错误，需要等一会儿：  
 ![image](https://github.com/user-attachments/assets/e67d37a9-c220-4bb7-be9f-33dfacb68db6)
 
 若出现错误，情况如下：  
@@ -116,7 +116,7 @@ pm2 restart story-client
 ```bash
 pm2 logs
 ```
-返回结果  
+返回结果，刚安装完成需要等会儿才有区块完成：  
 ![398479ece825eee2a5752fbe78456d1](https://github.com/user-attachments/assets/65b6cc25-fb89-4ac4-82d9-11a13a238884)  
 
 如果需要清除节点状态并重新启动节点，则输入以下命令：
@@ -142,32 +142,42 @@ vim .env
 PRIVATE_KEY=按 i 键输入你的私钥，然后按 Esc 键输入 “：wq” 保存并退出
 ```
 如下图所示  
-![51f8b860e5d88866c95ea1a3b2104d1](https://github.com/user-attachments/assets/6cbc74a5-b0d7-432a-b2a2-0c2ec2792a62)  
+![image](https://github.com/user-attachments/assets/99615161-9196-4fbc-97d2-3ee3f48ac07e) 
 
-### 2. 创建验证器以及质押操作
-导出验证器密钥：
+### 2. 创建验证器以及质押操作  
+***请先确保story节点是同步运行的！！***  
+导出验证器密钥：  
+**记得保存密钥**  
+
 ```bash
-cd /usr/local/bin
-./story validator export
+story validator export
 ```
-**记得将密钥保存下来**  
 
-创建验证器，创建成功后会有一个网址返回，请保存下来以便于后期监控检点状态。  
+创建验证器，创建成功后会有一个网址返回，请保存下来以便于查看质押情况。  
 **记得保存网址**  
+下面是质押1IP的命令，若想质押更多则将“1”改为你想质押的IP数，以下的全部质押都以1IP为例。  
+
 ```bash
-./story validator create --stake 输入你要质押的 IP 数并乘 1000000000000000000
+story validator create --stake 1000000000000000000
 ```
-若你想继续质押，则输入你的验证器公钥以及你要质押的 IP 数并乘 1000000000000000000；若你要帮他人质押，则输入他的验证器公钥以及他想要质押的 IP 数并乘 1000000000000000000：
+
+若你想继续质押，则输入你的验证器公钥以及你要质押的 IP 数并乘 1000000000000000000；若你要帮他人质押，则输入他的验证器公钥以及他想要质押的 IP 数并乘 1000000000000000000： 
+
 ```bash
-./story validator stake --validator-pubkey 输入验证器公钥 --stake 输入你要质押的 IP 数并乘 1000000000000000000
+story validator stake --validator-pubkey 输入验证器公钥 --stake 1000000000000000000
 ```
+
 若你想取消质押，则输入你的验证器公钥以及你要取消质押的 IP 数并乘 1000000000000000000；若你要帮他人取消质押，则输入他的验证器公钥以及他想要取消质押的 IP 数并乘 1000000000000000000：
+
 ```bash
-./story validator unstake --validator-pubkey 输入验证器公钥 --unstake 输入你要取消质押的 IP 数并乘 1000000000000000000
+story validator unstake --validator-pubkey 输入验证器公钥 --unstake 1000000000000000000
 ```
-如果你想更换提取奖励的地址，则进行上面的操作：
+
+如果你想更换提取奖励的地址，则进行上面的操作：  
+请确保该账户已经进行质押  
+
 ```bash
-./story validator set-withdrawal-address --address 输入你提取奖励的新地址
+story validator set-withdrawal-address --withdrawal-address 输入你提取奖励的新地址
 ```
 
 ## 共识层客户端版本的更新
@@ -214,7 +224,7 @@ pm2 stop story-client
 ```bash
 wget https://story-geth-binaries.s3.us-west-1.amazonaws.com/story-public/story-linux-amd64-0.11.0-aac4bfe.tar.gz &&  tar -xzf story-linux-amd64-0.11.0-aac4bfe.tar.gz
 ```
-同时将 story-linux-amd64-0.11.0-aac4bfe 文件夹下的 story 文件复制到 /usr/local/bin 文件夹下
+同时将 story-linux-amd64-0.11.0-aac4bfe 文件夹下的 story 文件复制到 /usr/local/bin 文件夹下  
 ```bash
 cp /root/story-linux-amd64-0.11.0-aac4bfe/story /usr/local/bin
 ```
