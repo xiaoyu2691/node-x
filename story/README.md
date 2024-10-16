@@ -262,7 +262,7 @@ echo '{"height": "0", "round": 0, "step": 0}' > ${STORY_DATA_ROOT}/data/priv_val
 pm2 restart story-client
 ```
 
-如果需要清除节点状态并重新启动节点，则输入以下命令：
+如果需要清除节点所有数据并重新启动节点，则输入以下命令：
 ```bash
 pm2 stop story-geth && rm -rf ${GETH_DATA_ROOT} && pm2 start /usr/local/bin/geth --name story-geth -- --iliad --syncmode full
 ```
