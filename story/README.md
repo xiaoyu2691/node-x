@@ -250,6 +250,9 @@ pm2 logs story-client
 ![4be4e2b46eb277694ed07ead358baac](https://github.com/user-attachments/assets/0d820836-66bb-41db-a2f3-a337ad29be14)  
 可以尝试重置节点  
 ```bash
+export STORY_DATA_ROOT="~/.story/story"
+```
+```bash
 rm -rf ${STORY_DATA_ROOT}/data/*
 ```
 ```bash
