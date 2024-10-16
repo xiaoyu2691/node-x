@@ -157,7 +157,7 @@ story validator export
 
 创建验证器，创建成功后会有一个网址返回，请保存下来以便于查看质押情况。  
 **记得保存网址**  
-下面是质押1IP的命令，若想质押更多则将“1”改为你想质押的IP数，以下的全部质押都以1IP为例。  
+下面是质押1IP的命令，若想质押更多则将“1”改为你想质押的IP数，**以下的全部质押都以1IP为例**。  
 
 ```bash
 story validator create --stake 1000000000000000000
@@ -242,7 +242,7 @@ pm2 logs story-client
 ## 六、质押状态  
 ### 通过验证器返回的网址查看质押情况   
 将质押的钱包地址输入并返回，就能够在下方查看你的质押情况，下图仅供参考：  
-![image](https://github.com/user-attachments/assets/65c2773d-33e5-4000-8b75-14f1ce109ba1)  
+![image](https://github.com/user-attachments/assets/1e6e60fb-a63a-4fd2-a47e-a909e00f7a25)  
 
 ## 七、错误处理  
 ### 1、查看节点状态一直显示错误
