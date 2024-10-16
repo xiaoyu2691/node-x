@@ -19,9 +19,9 @@
 | 磁盘         | 200 GB     |
 | 带宽         | 10 兆比特/秒 |
 
-以下是 Story 节点参考教程步骤：
+## **以下是 Story 节点参考教程步骤：**  
 
-## 服务器准备
+## 一、服务器准备
 
 ### 1. 安装依赖以及必要工具
 
@@ -50,7 +50,7 @@ sudo apt-get install -y npm
 npm install pm2@latest -g
 ```
 
-## 安装 Story 节点
+## 二、安装 Story 节点
 
 ### 1. 下载并解压客户端安装包
 下载最新的执行客户端安装包，请访问 [最新版本](https://github.com/piplabs/story-geth/releases)：
@@ -109,7 +109,7 @@ pm2 start /usr/local/bin/story --name story-client -- run
 
   **节点安装完成！！！**
 
-## 检查节点状况
+## 三、检查节点状况
 ### 1. 查看节点状态
 查看节点状态  
 ```bash
@@ -126,7 +126,7 @@ pm2 logs
 返回结果，刚安装完成需要等会儿才有区块完成：  
 ![398479ece825eee2a5752fbe78456d1](https://github.com/user-attachments/assets/65b6cc25-fb89-4ac4-82d9-11a13a238884)  
 
-## 设置验证者
+## 四、设置验证者
 
 ### 1. 检查 .env 文件
 检查 .env 文件是否存在，如果存在则会显示出来：
@@ -182,7 +182,7 @@ story validator unstake --validator-pubkey 输入验证器公钥 --unstake 10000
 story validator set-withdrawal-address --withdrawal-address 输入你提取奖励的新地址
 ```
 
-## 客户端版本升级
+## 五、客户端版本升级
 ### 1. 检查区块高度  
 检查 Story 节点状态，查看其区块高度，需要达到 626,575 高度才能升级到 0.10.* 版本，需要达到1325860高度才能升级到0.11.*版本。  
 具体可访问[升级到0.10.*所需区块高度](https://medium.com/story-protocol/story-v0-10-0-available-for-coming-upgrade-e2f9cb10443b)  
@@ -239,12 +239,12 @@ pm2 start story-client
 pm2 logs story-client
 ```
 
-## 质押状态  
+## 六、质押状态  
 ### 通过验证器返回的网址查看质押情况   
 将质押的钱包地址输入并返回，就能够在下方查看你的质押情况，下图仅供参考：  
 ![image](https://github.com/user-attachments/assets/65c2773d-33e5-4000-8b75-14f1ce109ba1)  
 
-## 错误处理  
+## 七、错误处理  
 ### 1、查看节点状态一直显示错误
 若出现错误，情况如下：  
 ![4be4e2b46eb277694ed07ead358baac](https://github.com/user-attachments/assets/0d820836-66bb-41db-a2f3-a337ad29be14)  
