@@ -115,35 +115,16 @@ pm2 start /usr/local/bin/story --name story-client -- run
 ```bash
 story status
 ```
-返回结果，可能刚开始会显示错误，需要等一会儿：  
+返回结果，可能会显示一点小错误，请耐心等待一会儿并再次查看：  
 ![image](https://github.com/user-attachments/assets/e67d37a9-c220-4bb7-be9f-33dfacb68db6)
 
-若出现错误，情况如下：  
-![4be4e2b46eb277694ed07ead358baac](https://github.com/user-attachments/assets/0d820836-66bb-41db-a2f3-a337ad29be14)  
-可以尝试  
-```bash
-rm -rf ${STORY_DATA_ROOT}/data/* && \
-```
-```bash
-echo '{"height": "0", "round": 0, "step": 0}' > ${STORY_DATA_ROOT}/data/priv_validator_state.json
-```
-```bash
-pm2 restart story-client
-```
+
 查看客户端的日志信息，检查节点状况：
 ```bash
 pm2 logs
 ```
 返回结果，刚安装完成需要等会儿才有区块完成：  
 ![398479ece825eee2a5752fbe78456d1](https://github.com/user-attachments/assets/65b6cc25-fb89-4ac4-82d9-11a13a238884)  
-
-如果需要清除节点状态并重新启动节点，则输入以下命令：
-```bash
-pm2 stop story-geth && rm -rf ${GETH_DATA_ROOT} && pm2 start /usr/local/bin/geth --name story-geth -- --iliad --syncmode full
-```
-```bash
-pm2 stop story-client && rm -rf ${STORY_DATA_ROOT} && /usr/local/bin/story init --network iliad && pm2 start /usr/local/bin/story --name story-client -- run
-```
 
 ## 设置验证者
 
@@ -156,10 +137,11 @@ ls .env | grep ".env"
 ```bash
 vim .env
 ```
-请确认账户以获得 IP：
+请确认账户以获得 IP：  
+将以下内容复制,按 i 键，然后粘贴到.env文件并将私钥填在“PRIVATE_KEY=”后面，按 Esc 键输入 “：wq” 保存并退出
 ```bash
 # ~/story/.env" > .env
-PRIVATE_KEY=按 i 键输入你的私钥，然后按 Esc 键输入 “：wq” 保存并退出
+PRIVATE_KEY=
 ```
 如下图所示  
 ![image](https://github.com/user-attachments/assets/99615161-9196-4fbc-97d2-3ee3f48ac07e) 
@@ -200,7 +182,7 @@ story validator unstake --validator-pubkey 输入验证器公钥 --unstake 10000
 story validator set-withdrawal-address --withdrawal-address 输入你提取奖励的新地址
 ```
 
-## 共识层客户端版本的更新
+## 客户端版本升级
 ### 1. 检查区块高度  
 检查 Story 节点状态，查看其区块高度，需要达到 626,575 高度才能升级到 0.10.* 版本，需要达到1325860高度才能升级到0.11.*版本。  
 具体可访问[升级到0.10.*所需区块高度](https://medium.com/story-protocol/story-v0-10-0-available-for-coming-upgrade-e2f9cb10443b)  
@@ -213,7 +195,7 @@ story status
 
 ### 2. 版本升级（0.9.13——>0.10.2）   
 当达到既定的区块高度（626575），则可以开始进行升级操作。  
-首先，停止共识层客户端  
+首先，停止客户端  
 ```bash
 pm2 stop story-client
 ```
@@ -236,7 +218,7 @@ pm2 logs story-client
 
 ### 3. 版本升级（0.10.2——>0.11.0） 
 当达到既定的区块高度（1325860），则可以开始进行升级操作。  
-首先，停止共识层客户端  
+首先，停止客户端  
 ```bash
 pm2 stop story-client
 ```
@@ -262,4 +244,26 @@ pm2 logs story-client
 将质押的钱包地址输入并返回，就能够在下方查看你的质押情况，下图仅供参考：  
 ![image](https://github.com/user-attachments/assets/65c2773d-33e5-4000-8b75-14f1ce109ba1)  
 
+## 错误处理  
+### 1、查看节点状态一直显示错误
+若出现错误，情况如下：  
+![4be4e2b46eb277694ed07ead358baac](https://github.com/user-attachments/assets/0d820836-66bb-41db-a2f3-a337ad29be14)  
+可以尝试重装节点  
+```bash
+rm -rf ${STORY_DATA_ROOT}/data/* && \
+```
+```bash
+echo '{"height": "0", "round": 0, "step": 0}' > ${STORY_DATA_ROOT}/data/priv_validator_state.json
+```
+```bash
+pm2 restart story-client
+```
+
+如果需要清除节点状态并重新启动节点，则输入以下命令：
+```bash
+pm2 stop story-geth && rm -rf ${GETH_DATA_ROOT} && pm2 start /usr/local/bin/geth --name story-geth -- --iliad --syncmode full
+```
+```bash
+pm2 stop story-client && rm -rf ${STORY_DATA_ROOT} && /usr/local/bin/story init --network iliad && pm2 start /usr/local/bin/story --name story-client -- run
+```
 ---
