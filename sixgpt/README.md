@@ -23,7 +23,7 @@ docker -v
 已安装则返回：  
 ![image](https://github.com/user-attachments/assets/d6c7aa3d-a5dc-4549-8241-5b39d1d93636)  
 
-安装 Docker：  
+安装 Docker,若安装出现问题请访问[docker官网](https://docs.docker.com/engine/install/)：  
 ```bash
 curl -fsSL https://get.docker.com -o get-docker.sh
 ```
