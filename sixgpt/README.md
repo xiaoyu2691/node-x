@@ -57,16 +57,16 @@ docker compose up -d
 返回结果如下：  
 ![image](https://github.com/user-attachments/assets/66ccdcfc-b709-456a-8774-9ab3ccfdebd4)
 
-**SIXGPT 安装已完成！**  
+**SIXGPT miner安装已完成！**  
 
 ### 查看 SIXGPT Miner 状况
 
 1. 查看 Miner 日志：  
 ```bash
-docker logs miner-ollama-1
+docker compose logs miner
 ```
 这是没有 $VANA 的账户状态：  
-![image](https://github.com/user-attachments/assets/c4e58c82-3848-4207-8cfc-c188b55fdebf)  
+![image](https://github.com/user-attachments/assets/3797e0e9-341f-4201-b1df-bfa4d931962a)  
 正常运行结果如下：  
 ![31e33b761f2702676c4ab002070d1e1](https://github.com/user-attachments/assets/7f7c2bee-22f0-40ae-96fa-0636ce3a41ed)  
 
