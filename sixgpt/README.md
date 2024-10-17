@@ -15,33 +15,20 @@ SIXGPT 是一个基于区块链的去中心化项目，旨在通过智能合约�
 
 ### 1. 服务器准备
 
-1. **安装 Docker（已安装则跳过）**  
-检查是否安装 Docker：  
+1. **安装 Docker（已安装则跳过）**
+若不知道是否安装，则检查是否安装 Docker：  
 ```bash
 docker -v
 ```
+已安装则返回：  
+![image](https://github.com/user-attachments/assets/d6c7aa3d-a5dc-4549-8241-5b39d1d93636)  
+
 安装 Docker：  
 ```bash
-sudo apt install -y apt-transport-https ca-certificates curl software-properties-common
+curl -fsSL https://get.docker.com -o get-docker.sh
 ```
 ```bash
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-```
-```bash
-sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
-```
-```bash
-sudo apt update -y
-```
-```bash
-sudo apt install -y docker-ce
-```
-启动 Docker 服务：  
-```bash
-sudo systemctl start docker
-```
-```bash
-sudo systemctl enable docker
+sh get-docker.sh
 ```
 
 ### 2. 安装并启动 SIXGPT Miner
