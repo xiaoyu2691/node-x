@@ -8,20 +8,59 @@ ubuntu设备/mac设备
 
 |  硬件  |   要求   |
 |----|------|
-|  ＣＰＵ  |   ４核   |
+|  cpu |   4核   |
 |    |      |
-|    ｜　　　｜
+|    |　    |  
 
 ##  以下是HEMI CLI POP miner参考教程步骤：   
 ### 一、服务器准备  
-1、**安装git、make和Go v1.23+(若已安装，则跳过)**  
+1、**安装git、make、Go v1.23+以及docker(若已安装，则跳过)**  
 检查包管理器，确保更新到最新。
 ```bash
 sudo apt update && sudo apt upgrade -y
 ```
-安装git  
+安装git和make  
 ```bash
-sudo apt install git
+sudo apt install git make -y
 ```
-安装make  
+**安装go v1.23+**   
+```bash
+wget https://go.dev/dl/go1.23.2.linux-amd64.tar.gz && tar -C /usr/local -xzf go1.23.2.linux-amd64.tar.gz
+```
+```bash
+export PATH=$PATH:/usr/local/go/bin
+```
+```bash
+go version
+```
+**安装docker**
+安装Docker，若安装出现问题请访问[Docker官网](https://docs.docker.com/engine/install/)：  
+```bash
+curl -fsSL https://get.docker.com -o get-docker.sh
+```
+```bash
+sh get-docker.sh
+```
+### 二、构建二进制文件   
+1、克隆heminetwork存储库  
+```bash
+git clone https://github.com/hemilabs/heminetwork.git
+```
+```bash
+cd heminetwork
+```
+2、设置并构建二进制文件  
+```bash
+make deps
+```
+```bash
+make install
+```
+### 三、运行 localnet 网络  
+1、启动网络  
+```bash
+docker compose -f ./e2e/docker-compose.yml up --build
+```
+### 四、
+![Uploading image.png…]()
 
