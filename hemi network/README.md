@@ -56,11 +56,65 @@ make deps
 ```bash
 make install
 ```
-### 三、运行 localnet 网络  
+返回结果如下：  
+![image](https://github.com/user-attachments/assets/54c87c3b-8212-4db3-95b2-5c531dbd5346)
+
+### 三、运行 localnet 网络及检查安装情况    
 1、启动网络  
 ```bash
 docker compose -f ./e2e/docker-compose.yml up --build
 ```
-### 四、
-![Uploading image.png…]()
+2、检查安装情况   
+```bash
+./popmd --help
+```
+正常安装完成，返回如下：  
+![image](https://github.com/user-attachments/assets/ba587dbe-dcdb-405a-8505-42c162232b08)  
+
+### 四、生成密钥   
+1、**生成公钥**  
+```bash
+./keygen -secp256k1 -json -net="testnet" > ~/popm-address.json
+```
+2、**导出密钥**  
+```bash
+cat ~/popm-address.json
+```
+**记得保存密钥**
+![image](https://github.com/user-attachments/assets/aaaa7094-c3dc-479b-a43f-5a11002e9d4e)  
+
+### 五、运行矿机  
+配置设置  
+在“POPM_BTC_PRIVKEY=”后面填写你的私钥或生成的私钥
+```bash
+export POPM_BTC_PRIVKEY=
+```
+在“POPM_STATIC_FEE=”后输入你想支付的sat/vB费用（官方建议设置为50）。
+```bash
+export POPM_STATIC_FEE=
+```
+```bash
+set POPM_BFG_URL=wss://testnet.rpc.hemi.network/v1/ws/public
+```
+启动挖矿并放入后台运行，你也可以下载其他工具进行启动。  
+```bash
+nohup ./popmd &
+```
+### 六、监控挖矿状态  
+1、检查挖矿状态  
+查看日志信息  
+```bash
+cd /heminetwork/bin
+```
+```bash
+cat nohup.out
+```
+2、仪表盘监控挖矿状态及tbtc消耗状态    
+在仪表盘右上角输入返回的哈希值回车就能看到挖矿状态，请访问[仪表盘](https://mempool.space/testnet)。   
+![image](https://github.com/user-attachments/assets/9ff6eef8-77a9-48b5-922b-1076f26bec2f)  
+余额查看  
+![image](https://github.com/user-attachments/assets/3c773005-27c3-4c71-a84c-8edb99ebfe18)  
+
+
+
 
