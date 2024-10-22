@@ -4,7 +4,7 @@ Hemi 网络是模块化二层协议，由比特币和以太坊支持，具备扩
 
 ## 前置条件
 
-- Ubuntu 或 macOS 设备
+- Ubuntu 或 macOS 或 windows 设备
 - 推特账号拥有 10 个追随者
 
 ## 配置条件如下
