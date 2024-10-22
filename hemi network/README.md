@@ -80,21 +80,22 @@ docker compose -f ./e2e/docker-compose.yml up --build
 ![image](https://github.com/user-attachments/assets/ba587dbe-dcdb-405a-8505-42c162232b08)  
 
 ### 四、生成密钥   
-1、**生成公钥**  
+**1、生成公钥** 
 ```bash
 ./keygen -secp256k1 -json -net="testnet" > ~/popm-address.json
 ```
-2、**导出密钥**  
+**2、导出密钥**  
 ```bash
 cat ~/popm-address.json
 ```
-**记得保存密钥**  
+***记得保存密钥***  
 你需要加入hemi的DC，连接推特后加入faucet-commands频道使用生成的哈希领水，加入[hemiDC](https://discord.gg/hemixyz)  
 
 ![image](https://github.com/user-attachments/assets/ef47545d-ea4a-4502-b25f-ac22ab5a6e9b)  
 
+
 ### 五、运行矿机  
-配置设置  
+**1、配置设置**  
 在“POPM_BTC_PRIVKEY=”后面填写你的私钥或生成的私钥
 ```bash
 export POPM_BTC_PRIVKEY=
@@ -114,21 +115,22 @@ pm2 start popmd
 1、检查挖矿状态  
 查看日志信息  
 ```bash
-cd /heminetwork/bin
-```
-```bash
-cat nohup.out
+pm2 logs popmd
 ```
 部署好之后，可能不会立马挖到区块，等待半天再查看挖矿情况。  
 ![16533cd243f3e59d38f18629772b93e](https://github.com/user-attachments/assets/b46d579c-901d-4ba3-af7a-554d015f4990)  
 
 2、仪表盘监控挖矿状态及tbtc消耗状态    
-在仪表盘右上角输入返回的哈希值回车就能看到挖矿状态，请访问[仪表盘](https://mempool.space/testnet)。   
+在仪表盘右上角输入返回的哈希值(**pubkey_hash**)就能看到挖矿状态，请访问[仪表盘](https://mempool.space/testnet)。   
 可以结合日志查看项目是否正常运行  
+余额查看（**注：请将余额保持在0.1以上**）
 ![image](https://github.com/user-attachments/assets/9ff6eef8-77a9-48b5-922b-1076f26bec2f)    
 
-余额查看   
+   
 ![image](https://github.com/user-attachments/assets/3c773005-27c3-4c71-a84c-8edb99ebfe18)  
+
+输入钱包地址或比特币地址查看运行情况，请访问[仪表盘](https://testnet.popstats.hemi.network/)  
+![image](https://github.com/user-attachments/assets/a108a13d-329c-4236-8bcb-9da2528adfeb)  
 
 
 
