@@ -15,7 +15,7 @@ Hemi 网络是模块化二层协议，由比特币和以太坊支持，具备扩
 | 内存  | 1 GB   |
 | 磁盘  | 50 GB  |
 
-## HEMI CLI PoP Miner 参考教程步骤
+## HEMI CLI PoP Miner 参考教程步骤(以下部署以ubuntu服务器部署为例)：
 
 ### 一、服务器准备
 
