@@ -22,3 +22,59 @@ curl -fsSL https://get.docker.com -o get-docker.sh
 ```bash
 sh get-docker.sh
 ```
+### 二、验证者设置  
+**1、下载验证器环境模板文件**  
+```bash
+wget https://files.elixir.finance/validator.env
+```
+```bash
+vim validator.env
+```
+![image](https://github.com/user-attachments/assets/b8d44c09-2dfe-44f6-8323-854bde4eed59)  
+**2、下载Docker的镜像**    
+```bash
+docker pull elixirprotocol/validator:v3
+```
+**3、运行验证者**  
+```bash
+docker run -d \
+  --env-file validator.env \
+  --name elixir \
+  -p 17690:17690 \
+  elixirprotocol/validator:v3
+```
+![image](https://github.com/user-attachments/assets/5d48ee26-c317-4804-8b58-a6e74014c6c6)  
+
+***安装完成！！！***  
+
+### 三、检查节点状态  
+**1、检查节点日志**  
+```bash
+docker logs elixir
+```
+**2、通过仪表盘检查节点状态**  
+通过[Elixir Network Testnet v3仪表盘](https://testnet-3.elixir.xyz/),检查节点运行状态。    
+![image](https://github.com/user-attachments/assets/92d6fa7d-65bb-4964-9bc4-f75a9d918a46)    
+![image](https://github.com/user-attachments/assets/cbd77adc-9a30-428f-b55a-fb9d259ca406)  
+
+***领水以及质押的操作***  
+![image](https://github.com/user-attachments/assets/ddb0ffba-f814-4097-99a0-53a398afbf89)  
+
+### 四、升级验证者  
+**1、升级节点**  
+```bash
+docker kill elixir
+```
+```bash
+docker rm elixir
+```
+```bash
+docker pull elixirprotocol/validator:v3
+```
+```bash
+docker run -d \
+  --env-file validator.env \
+  --name elixir \
+  -p 17690:17690 \
+  elixirprotocol/validator:v3
+```
