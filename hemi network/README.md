@@ -103,9 +103,10 @@ Hemi 网络是模块化二层协议，由比特币和以太坊支持，具备扩
    cat ~/popm-address.json
    ```
    **记得保存密钥**  
-   你需要加入 Hemi 的 Discord，连接推特后加入 faucet-commands 频道使用生成的哈希领取水，加入 [hemiDC](https://discord.gg/hemixyz)。
+  ![image](https://github.com/user-attachments/assets/a1cc71f7-bae2-4d55-85c7-0c14ce253d75)
 
-   ![image](https://github.com/user-attachments/assets/ef47545d-ea4a-4502-b25f-ac22ab5a6e9b)  
+你需要加入 Hemi 的 Discord，连接推特后加入 faucet-commands 频道使用生成的哈希领取水，加入 [hemiDC](https://discord.gg/hemixyz)。  
+
    ![image](https://github.com/user-attachments/assets/5d2e4226-b13c-4d1a-88a2-2a94c2e2d8dd)  
    ![image](https://github.com/user-attachments/assets/9a63abe5-29e2-4b2d-9299-ee9dc4412984)  
    ![image](https://github.com/user-attachments/assets/55cd4869-35b7-4b55-8ec9-bb0f5e583f1f)  
@@ -153,5 +154,5 @@ Hemi 网络是模块化二层协议，由比特币和以太坊支持，具备扩
    ![image](https://github.com/user-attachments/assets/9ff6eef8-77a9-48b5-922b-1076f26bec2f)  
    ![image](https://github.com/user-attachments/assets/3c773005-27c3-4c71-a84c-8edb99ebfe18)  
 
-输入钱包地址或比特币地址查看运行情况，请访问 [仪表盘](https://testnet.popstats.hemi.network/)  
+输入公钥（**public_key**）查看运行情况，请访问 [仪表盘](https://testnet.popstats.hemi.network/)  
 ![image](https://github.com/user-attachments/assets/a108a13d-329c-4236-8bcb-9da2528adfeb)  
