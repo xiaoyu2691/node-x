@@ -92,6 +92,16 @@ cat ~/popm-address.json
 你需要加入hemi的DC，连接推特后加入faucet-commands频道使用生成的哈希领水，加入[hemiDC](https://discord.gg/hemixyz)  
 
 ![image](https://github.com/user-attachments/assets/ef47545d-ea4a-4502-b25f-ac22ab5a6e9b)  
+![image](https://github.com/user-attachments/assets/5d2e4226-b13c-4d1a-88a2-2a94c2e2d8dd)  
+![image](https://github.com/user-attachments/assets/9a63abe5-29e2-4b2d-9299-ee9dc4412984)  
+![image](https://github.com/user-attachments/assets/55cd4869-35b7-4b55-8ec9-bb0f5e583f1f)
+![image](https://github.com/user-attachments/assets/a630304e-d4f1-4843-8307-b5038ce02259)
+![image](https://github.com/user-attachments/assets/63566486-8207-41d7-a7cc-91d22ebaad0c)
+![image](https://github.com/user-attachments/assets/3998b4da-2612-465f-b6e4-2c52787aa14b)  
+![image](https://github.com/user-attachments/assets/6b7695bc-e3d1-489d-9e8a-a0835eb263fb)  
+![image](https://github.com/user-attachments/assets/9e17dc0d-b01a-43cb-9dca-a0c738255599)  
+![image](https://github.com/user-attachments/assets/3fc01e74-e434-4a79-a1e1-3a4691d55022)  
+![image](https://github.com/user-attachments/assets/83a8ab99-ac8a-491d-a081-8d84b19c61cb)  
 
 
 ### 五、运行矿机  
