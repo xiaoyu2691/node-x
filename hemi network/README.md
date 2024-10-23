@@ -117,6 +117,7 @@ Hemi 网络是模块化二层协议，由比特币和以太坊支持，具备扩
    ![image](https://github.com/user-attachments/assets/9e17dc0d-b01a-43cb-9dca-a0c738255599)  
    ![image](https://github.com/user-attachments/assets/3fc01e74-e434-4a79-a1e1-3a4691d55022)  
    ![image](https://github.com/user-attachments/assets/83a8ab99-ac8a-491d-a081-8d84b19c61cb)
+![e0e4d0916f5fe3df14efc31836e5453](https://github.com/user-attachments/assets/e2476e18-8780-4db3-9903-3727682bb74c)  
 
 ### 五、运行矿机
 
