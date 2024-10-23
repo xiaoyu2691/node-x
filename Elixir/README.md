@@ -17,7 +17,15 @@ Eliir是一个模块化的DPoS网络，旨在提供订单簿交易所的流动�
 **1、账户准备**  
 领水以及质押的操作,请访问[Elixir](https://testnet-3.elixir.xyz/)  
 ***注：质押需要点击两次模拟质押***  
-![image](https://github.com/user-attachments/assets/ddb0ffba-f814-4097-99a0-53a398afbf89)  
+![image](https://github.com/user-attachments/assets/4ec7ad1f-e8fe-43ce-9578-9444943ae642)  
+![image](https://github.com/user-attachments/assets/4bd5d818-36a7-447b-9bd8-b166331a9368)  
+![image](https://github.com/user-attachments/assets/694e6091-d129-4479-9f1d-4efdf5dd34c3)  
+![ffdec97350b0e8614cc24ff53c0dbfe](https://github.com/user-attachments/assets/34548659-85ad-4162-8bd3-c1aa6779f9a5)   
+![5bb6d96306c7c863e440cf2037bb85e](https://github.com/user-attachments/assets/cb534bd3-2234-4619-870f-d498719b8576)   
+![62ec18a5d48934061117ac709d9db88](https://github.com/user-attachments/assets/2f6232c3-f3de-4cf3-9992-ab2f5843c8e4)  
+![78f45929a40efef4f7a27ee7f9df484](https://github.com/user-attachments/assets/1a54ba95-0c5c-4121-b783-f4ea4c77d0c4)  
+
+![image](https://github.com/user-attachments/assets/92d6fa7d-65bb-4964-9bc4-f75a9d918a46)   
 ### 二、服务器准备  
 安装docker  
 ```bash
@@ -34,7 +42,7 @@ wget https://files.elixir.finance/validator.env
 ```bash
 vim validator.env
 ```
-![image](https://github.com/user-attachments/assets/b8d44c09-2dfe-44f6-8323-854bde4eed59)  
+![image](https://github.com/user-attachments/assets/67c657bb-7773-4330-9f03-195e345c9101)  
 
 **2、下载Docker的镜像**  
 ```bash
@@ -63,10 +71,7 @@ docker logs elixir
 
 **2、通过仪表盘检查节点状态**  
 通过[Elixir Network Testnet v3仪表盘](https://testnet-3.elixir.xyz/)，检查节点运行状态。    
-![image](https://github.com/user-attachments/assets/92d6fa7d-65bb-4964-9bc4-f75a9d918a46)    
 ![image](https://github.com/user-attachments/assets/cbd77adc-9a30-428f-b55a-fb9d259ca406)  
-
-
 
 ### 五、升级验证者  
 **1、升级节点**  
