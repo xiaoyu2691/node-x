@@ -14,7 +14,11 @@ Eliir是一个模块化的DPoS网络，旨在提供订单簿交易所的流动�
 
 ## 以下是Elixir测试网验证器部署步骤(以ubuntu服务器部署为例)：  
 ### 一、部署前准备  
-**1、服务器准备**  
+**1、账户准备**  
+领水以及质押的操作,请访问[Elixir](https://testnet-3.elixir.xyz/)  
+***（注：质押需要点击两次模拟质押）***  
+![image](https://github.com/user-attachments/assets/ddb0ffba-f814-4097-99a0-53a398afbf89)  
+### 二、服务器准备  
 安装docker  
 ```bash
 curl -fsSL https://get.docker.com -o get-docker.sh
@@ -22,11 +26,7 @@ curl -fsSL https://get.docker.com -o get-docker.sh
 ```bash
 sh get-docker.sh
 ```
-**2、账户准备**  
-领水以及质押的操作,请访问[Elixir](https://testnet-3.elixir.xyz/)  
-***（注：质押需要点击两次模拟质押）***  
-![image](https://github.com/user-attachments/assets/ddb0ffba-f814-4097-99a0-53a398afbf89)  
-### 二、验证者设置  
+### 三、验证者设置  
 **1、下载验证器环境模板文件**  
 ```bash
 wget https://files.elixir.finance/validator.env
@@ -53,7 +53,7 @@ docker run -d \
 
 ***安装完成！！！***  
 
-### 三、检查节点状态  
+### 四、检查节点状态  
 **1、检查节点日志**  
 ```bash
 docker logs elixir
@@ -68,7 +68,7 @@ docker logs elixir
 
 
 
-### 四、升级验证者  
+### 五、升级验证者  
 **1、升级节点**  
 ```bash
 docker stop elixir
