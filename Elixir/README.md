@@ -24,8 +24,8 @@ Eliir是一个模块化的DPoS网络，旨在提供订单簿交易所的流动�
 ![5bb6d96306c7c863e440cf2037bb85e](https://github.com/user-attachments/assets/cb534bd3-2234-4619-870f-d498719b8576)   
 ![62ec18a5d48934061117ac709d9db88](https://github.com/user-attachments/assets/2f6232c3-f3de-4cf3-9992-ab2f5843c8e4)  
 ![78f45929a40efef4f7a27ee7f9df484](https://github.com/user-attachments/assets/1a54ba95-0c5c-4121-b783-f4ea4c77d0c4)  
-
-![image](https://github.com/user-attachments/assets/92d6fa7d-65bb-4964-9bc4-f75a9d918a46)   
+![image](https://github.com/user-attachments/assets/d0fe01c4-07e4-4300-b3b2-07096eaf96ae)  
+  
 ### 二、服务器准备  
 安装docker  
 ```bash
@@ -91,3 +91,8 @@ docker run -d \
   -p 17690:17690 \
   elixirprotocol/validator:v3
 ```
+### 六、一键部署  
+若你看好这个项目，但有没有什么时间或没有设备，可以到node-X平台下单，进行一键部署你的Elixir  
+**[一键部署](https://node-x.xyz/#/deploy?proId=UeYtWegB3w8BkDeV)**  
+![image](https://github.com/user-attachments/assets/8c793146-ed4f-43ec-83f7-14e0510c6548)  
+
