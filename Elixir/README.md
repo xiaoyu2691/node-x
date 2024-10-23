@@ -93,7 +93,7 @@ docker run -d \
   elixirprotocol/validator:v3
 ```
 ### 六、一键部署  
-若你看好这个项目，但有没有什么时间或没有设备，可以到node-X平台下单，进行一键部署你的Elixir  
+若你看好这个项目，但没有什么时间或没有设备，可以到node-X平台下单，进行一键部署你的Elixir  
 **[一键部署](https://node-x.xyz/#/deploy?proId=UeYtWegB3w8BkDeV)**  
 ![image](https://github.com/user-attachments/assets/8c793146-ed4f-43ec-83f7-14e0510c6548)  
 
