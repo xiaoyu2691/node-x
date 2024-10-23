@@ -17,6 +17,7 @@ Eliir是一个模块化的DPoS网络，旨在提供订单簿交易所的流动�
 **1、账户准备**  
 领水以及质押的操作,请访问[Elixir](https://testnet-3.elixir.xyz/)  
 ***注：质押需要点击两次模拟质押***  
+若有什么不懂的也可以访问[NODE-X](https://docs.node-x.xyz/chan-pin-shou-ce/yi-jian-bu-shu/elixir)  
 ![image](https://github.com/user-attachments/assets/4ec7ad1f-e8fe-43ce-9578-9444943ae642)  
 ![image](https://github.com/user-attachments/assets/4bd5d818-36a7-447b-9bd8-b166331a9368)  
 ![image](https://github.com/user-attachments/assets/694e6091-d129-4479-9f1d-4efdf5dd34c3)  
