@@ -4,7 +4,7 @@ operator:
     staker_opt_out_window_blocks: 0
     metadata_url: "https://raw.githubusercontent.com/xiaoyu2691/node-x/refs/heads/main/files/metadata.json"
 el_delegation_manager_address: 0xA44151489861Fe9e3055d95adC98FbD462B948e7
-eth_rpc_url: https://holesky.etherscan.io/v3/ECR4SGSUSDWC5RPWKS71KHH5T8CA7RTXR3
+eth_rpc_url: https://sepolia.infura.io/v3/07ac8c60281c463b871b427b5d8cf6b7
 chain_id: 17000
 private_key_store_path: /root/.eigenlayer/operator_keys/arcticfish.ecdsa.key.json
 signer_type: local_keystore
