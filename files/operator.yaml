@@ -1,10 +1,10 @@
 operator:
-    address: 0xD12E5Fdfc4B9aE8C21C2E4cCf2276E3C03032102
+    address: 0x412ED4a763C3f907E3a571239F2230eE3FE4B013
     delegation_approver_address: "0x0000000000000000000000000000000000000000"
     staker_opt_out_window_blocks: 0
     metadata_url: "https://raw.githubusercontent.com/xiaoyu2691/node-x/refs/heads/main/files/metadata.json"
 el_delegation_manager_address: 0xA44151489861Fe9e3055d95adC98FbD462B948e7
-eth_rpc_url: https://holesky.infura.io/v3/e2a90ea5f8924e10b634d766c16b4355
+eth_rpc_url: https://holesky.etherscan.io/v3/ECR4SGSUSDWC5RPWKS71KHH5T8CA7RTXR3
 chain_id: 17000
 private_key_store_path: /root/.eigenlayer/operator_keys/ECDSA.ecdsa.key.json
 signer_type: local_keystore
