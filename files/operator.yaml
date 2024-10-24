@@ -6,7 +6,7 @@ operator:
 el_delegation_manager_address: 0xA44151489861Fe9e3055d95adC98FbD462B948e7
 eth_rpc_url: https://holesky.etherscan.io/v3/ECR4SGSUSDWC5RPWKS71KHH5T8CA7RTXR3
 chain_id: 17000
-private_key_store_path: /root/.eigenlayer/operator_keys/ECDSA.ecdsa.key.json
+private_key_store_path: /root/.eigenlayer/operator_keys/arcticfish.ecdsa.key.json
 signer_type: local_keystore
 fireblocks:
     api_key: ""
