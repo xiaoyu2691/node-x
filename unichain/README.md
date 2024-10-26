@@ -79,5 +79,13 @@ curl -d '{"id":1,"jsonrpc":"2.0","method":"eth_getBlockByNumber","params":["late
 ```bash
 docker compose down
 ```
-
-
+### 6、升级节点  
+```bash
+docker compose down
+```
+```bash
+git pull
+```
+```bash
+docker compose up -d
+```
