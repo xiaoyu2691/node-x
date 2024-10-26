@@ -3,7 +3,6 @@
 Unichain 是一个高效、低成本的以太坊 L2 解决方案，专注 DeFi 和多链流动性。其 1 秒出块时间将进一步缩短至 250 毫秒，提高市场效率并减少 MEV 损失。通过将执行移至 L2，Unichain 使交易成本降低约 95%，并支持多链无缝交易与流动性接入，实现跨链互操作性和更高去中心化。  
 
 ## 前置条件  
-一个META钱包（需要领水，也可以通过桥转到Unichain Testnet下）  
 一个可用的RPC  
 一个可用的Beacon  
 ## 运行配置条件如下：  
@@ -59,4 +58,21 @@ vim .env.sepolia
 ![image](https://github.com/user-attachments/assets/fe2ed6e1-090b-42ba-977a-f725973b7168)  
 ![6a2d5c95e75fc58c3f94674963d8c03](https://github.com/user-attachments/assets/ed1e538c-1b5e-48af-af7b-7bf65c898359)  
 ![9010a74ec157143c9cfab4390dc7988](https://github.com/user-attachments/assets/e96f69ed-7344-422e-ac95-1f9ee219150c)  
+
+### 3、运行节点  
+```bash
+docker compose up -d
+```
+返回结果如下：  
+![image](https://github.com/user-attachments/assets/1bc71188-ffd2-4290-8f62-28eac586c30f)  
+
+***Unichain测试网节点安装完成了！！！***  
+
+### 4、检查节点运行状态  
+```bash
+
+```
+![image](https://github.com/user-attachments/assets/10a6b451-09c3-46a2-bc20-0c904e3f95c9)  
+
+
 
