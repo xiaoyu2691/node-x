@@ -70,7 +70,8 @@ docker compose up -d
 
 ### 4、检查节点运行状态  
 ```bash
-
+curl -d '{"id":1,"jsonrpc":"2.0","method":"eth_getBlockByNumber","params":["latest",false]}' \
+  -H "Content-Type: application/json" http://localhost:8545
 ```
 ![image](https://github.com/user-attachments/assets/10a6b451-09c3-46a2-bc20-0c904e3f95c9)  
 
