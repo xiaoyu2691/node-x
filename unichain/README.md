@@ -75,5 +75,9 @@ curl -d '{"id":1,"jsonrpc":"2.0","method":"eth_getBlockByNumber","params":["late
 ```
 ![image](https://github.com/user-attachments/assets/10a6b451-09c3-46a2-bc20-0c904e3f95c9)  
 
+### 5、停止节点运行  
+```bash
+docker compose down
+```
 
 
