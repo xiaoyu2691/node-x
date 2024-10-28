@@ -17,10 +17,12 @@ Unichain 是一个高效、低成本的以太坊 L2 解决方案，专注 DeFi �
 ## 一、部署前准备   
 **获取RPC**  
 推荐一：使用public node,请访问[public node](https://ethereum-holesky-rpc.publicnode.com/?sepolia)  
+![image](https://github.com/user-attachments/assets/bde1d982-6d36-4a8b-b4e8-22630073a1d3)  
+
 推荐二：使用infura获取rpc，请访问[INFURA](https://www.infura.io/zh)    
 ![image](https://github.com/user-attachments/assets/88303fcc-a626-4d6b-a76f-1a243889274d)  
 ![image](https://github.com/user-attachments/assets/c1865b85-9e14-4e39-bbc6-387cadde3311)  
-![image](https://github.com/user-attachments/assets/2db0c581-d422-4952-8a77-2cf1d9fc7cbb)  
+![image](https://github.com/user-attachments/assets/b81f0f50-3235-429d-9496-d2f69855c0b2)  
 ![image](https://github.com/user-attachments/assets/30bc5d0a-0ece-4875-b7a0-829f89467f76)  
 ![image](https://github.com/user-attachments/assets/8fa35b01-4777-47ea-b363-74ef1d60bf33)  
 ![image](https://github.com/user-attachments/assets/b1176f4d-605d-43a8-9dea-7a13cca8f426)  
@@ -28,7 +30,8 @@ Unichain 是一个高效、低成本的以太坊 L2 解决方案，专注 DeFi �
 ![image](https://github.com/user-attachments/assets/a369b315-f957-4cf2-8d76-6971840b44cf)  
 ![image](https://github.com/user-attachments/assets/5fc7e0a6-06d9-445e-b909-22b237de3b6e)  
 ![image](https://github.com/user-attachments/assets/805e2ef6-3fc5-4e7d-892b-3e8bfbcb53a5)  
-![image](https://github.com/user-attachments/assets/df584a5f-fce3-4a24-bd23-2ca8948a7077)  
+![image](https://github.com/user-attachments/assets/e18ed1cb-d434-4ac2-a2bb-706d10ba9430)  
+
 **获取Beacon**  
 使用public node获取，请访问[public node](https://ethereum-holesky-rpc.publicnode.com/?sepolia)  
 ![image](https://github.com/user-attachments/assets/b648220b-38ba-446d-8f61-029845d5e1a8)   
@@ -49,7 +52,7 @@ git clone https://github.com/Uniswap/unichain-node.git
 ```
 ### 2、配置RPC以及Beacon 
 ```bash
-cd unichain-nade
+cd unichain-node
 ```
 ```bash
 vim .env.sepolia
