@@ -92,5 +92,9 @@ git pull
 ```bash
 docker compose up -d
 ```
+## 四、一键部署  
+若你看好这个项目，但没有什么时间或没有设备，可以到node-X平台下单，进行一键部署您的Unichain  
+**[一键部署](https://node-x.xyz/#/deploy?proId=Umc2YpaQrk0KKTks)**    
+![image](https://github.com/user-attachments/assets/2b10fe3d-563a-47ee-b6c1-21518405c276)   
 
 
