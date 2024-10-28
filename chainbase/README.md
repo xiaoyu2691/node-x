@@ -57,7 +57,7 @@ Chainbase是全球最大的区块链数据网络，采用创新双链架构，�
 ![image](https://github.com/user-attachments/assets/3584b27a-a6c3-4bc1-b93f-d78da718355a)  
 ![image](https://github.com/user-attachments/assets/99c7069b-4909-46c9-98b4-cea5e49e525a)  
 ### 领水  
-选择holesky ETH，输入下面生成的操作者钱包地址，点击获取，请访问[holesky领水](https://cloud.google.com/application/web3/faucet/ethereum/holesky)    
+将下方生成的私钥导入META钱包中，向其中转入0.001ETH，选择holesky ETH，输入下面生成的操作者钱包地址，点击获取holesky ETH或将其他钱包中的holesky ETH转到该账户，请访问[holesky领水](https://cloud.google.com/application/web3/faucet/ethereum/holesky)    
 ![image](https://github.com/user-attachments/assets/3101a242-36fa-4247-bb0c-770f7187774d)  
 
 ## 服务器准备(若已安装，则跳过)    
@@ -102,10 +102,140 @@ git clone https://github.com/chainbase-labs/chainbase-avs-setup
 cd chainbase-avs-setup/holesky
 ```
 ### 3、创建ECDSA和BLS  
+**将ECDSA和BLS设置为相同的密码**
 ```bash
 eigenlayer operator keys create --key-type ecdsa "wallet_name"
 ```
-
+![image](https://github.com/user-attachments/assets/7979883f-c845-45fc-8f3f-6e6703418202)  
 ```bash
 eigenlayer operator keys create --key-type bls "wallet_name"
 ```
+![image](https://github.com/user-attachments/assets/2d684825-3c44-4ac3-8802-cfd9863c79e5)  
+### 4、配置operator.yaml和metadata.json  
+**配置operator**  
+```bash
+eigenlayer operator config create
+```
+RPC
+```bash
+https://ethereum-holesky-rpc.publicnode.com
+```
+以下方截图为例  
+![image](https://github.com/user-attachments/assets/4f406554-d9e2-4893-9994-2c67ed1d2f76)  
+
+```bash
+vim operator.yaml
+```
+![53558848abde5821995f4c619964f1f](https://github.com/user-attachments/assets/9f09696d-9e29-4013-bc4e-88530abdb85f)  
+
+**配置metadata.json**  
+```bash
+rm -rf metadata.json
+```
+```bash
+vim metadata.json
+```
+![image](https://github.com/user-attachments/assets/830a94ed-b74b-4631-a959-d05e9a2d00af)  
+
+### 5、注册操作者  
+```bash
+eigenlayer operator register operator.yaml
+```
+返回结果如下  
+![image](https://github.com/user-attachments/assets/c439d81d-a523-4365-839a-64725d29c30e)  
+
+## 注册AVS运营商并运行节点    
+### 1、创建.env文件  
+```bash
+vim .env
+```
+**其中是需要你输入你设置的一些信息**
+```bash
+USER_HOME=$HOME
+EIGENLAYER_HOME=${USER_HOME}/.eigenlayer
+CHAINBASE_AVS_HOME=${EIGENLAYER_HOME}/chainbase/holesky
+NODE_LOG_PATH_HOST=${CHAINBASE_AVS_HOME}/logs
+
+NODE_ECDSA_KEY_FILE_HOST=${EIGENLAYER_HOME}/operator_keys/你设置的wallet_name.ecdsa.key.json
+NODE_ECDSA_KEY_PASSWORD=你创建ECDSA时设置的密码
+
+NODE_ECDSA_KEY_FILE_PATH=${NODE_ECDSA_KEY_FILE_HOST}
+NODE_BLS_KEY_FILE_PATH=${EIGENLAYER_HOME}/operator_keys/你设置的wallet_name.bls.key.json
+OPERATOR_ECDSA_KEY_PASSWORD=${NODE_ECDSA_KEY_PASSWORD}
+OPERATOR_BLS_KEY_PASSWORD=${NODE_ECDSA_KEY_PASSWORD}
+# You can run `eigenlayer operator keys list` to check your opertor address.
+OPERATOR_ADDRESS=你生成的钱包地址
+# Ip address and port of the Node gRPC server.Like 8.219.81.93:8011
+# Ensure your server’s public IP is internet-accessible.
+# Verify that port 8011 is open and properly configured in your firewall settings.
+NODE_SOCKET=你的服务器的ip:8011
+# Your Operator name you want to be identified by, it helps us route alerts and metrics to your notification channels easily
+OPERATOR_NAME=你设置的wallet_name
+```
+```bash
+source .env && mkdir -pv ${EIGENLAYER_HOME} ${CHAINBASE_AVS_HOME} ${NODE_LOG_PATH_HOST}
+```
+### 2、修改chainbase-avs.sh  
+```bash
+vim chainbase-avs.sh
+```
+根据图片修改脚本   
+![image](https://github.com/user-attachments/assets/5c252aa5-3940-4e51-8281-5cefa337cee7)  
+```bash
+-e OPERATOR_BLS_KEY_PASSWORD=$NODE_ECDSA_KEY_PASSWORD -e OPERATOR_ECDSA_KEY_PASSWORD=$NODE_ECDSA_KEY_PASSWORD
+```
+按“i”键进行修改，修改完成后，按“esc”键并输入“：wq”保存退出。  
+### 3、配置prometheus.yml  
+```bash
+vim prometheus.yml
+```
+将以下内容复制粘贴到prometheus.yml文件中  
+```bash
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    operator: ${OPERATOR_NAME}
+
+remote_write:
+  - url: http://testnet-metrics.chainbase.com:9090/api/v1/write
+    write_relabel_configs:
+      - source_labels: [job]
+        regex: "chainbase-avs"
+        action: keep
+
+scrape_configs:
+  - job_name: "chainbase-avs"
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["manuscript_node:9090"]
+
+  - job_name: "flink"
+    metrics_path: /metrics
+    static_configs:
+      - targets:
+        - "chainbase_taskmanager:9249"
+        - "chainbase_jobmanager:9249"
+```
+同上，保存退出即可。  
+### 4、注册AVS运营商  
+```bash
+./chainbase-avs.sh register
+```
+返回结果如下：  
+![image](https://github.com/user-attachments/assets/826dbf37-a4f8-4594-82a7-83e21e1d63c5)  
+### 5、运行节点  
+```bash
+./chainbase-avs.sh run
+```
+返回结果如下：  
+![623d103947fb12570b1be3025df6f8a](https://github.com/user-attachments/assets/ffd17499-dc3e-4e88-a358-7c825c929164)  
+
+## 监控节点状态  
+### 1、通过端口3010查看节点状态  
+在浏览器中输入
+```bash
+你的服务器的ip地址:3010
+```
+返回结果如下：  
+![image](https://github.com/user-attachments/assets/a216d2e4-fcb0-4d6d-bd4f-2d5c607bf9be)  
