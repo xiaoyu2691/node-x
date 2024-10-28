@@ -239,3 +239,6 @@ scrape_configs:
 ```
 返回结果如下：  
 ![image](https://github.com/user-attachments/assets/a216d2e4-fcb0-4d6d-bd4f-2d5c607bf9be)  
+
+
+## 一键部署  
