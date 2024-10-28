@@ -5,12 +5,12 @@ Chainbase是全球最大的区块链数据网络，采用创新双链架构，�
 # 前置条件
 
 - linux环境的设备
-- 需要注册操作者（一个推特、一个png格式的logo图片、一个github账号）  
+- 需要注册操作者（推特网址、一个png格式的logo图片、一个github账号）  
 ## 存储服务器的推荐要求
 
 | 资源          | 规格                             |
 |---------------|----------------------------------|
-| 操作环境  |     linux环境     |
+| 操作环境  |     linux环境                        |
 | CPU 核心数    | ≥2                               |
 | 内存          | ≥ 8 GB                           |
 | 带宽          | ≥ 5 Mbps                        |
@@ -21,36 +21,56 @@ Chainbase是全球最大的区块链数据网络，采用创新双链架构，�
 ### 1、github上创建Metadata.json文件  
 首先需要创建github账号，若已经创建了账号则直接登录即可    
 ![image](https://github.com/user-attachments/assets/fb32cb03-619e-4c67-af4a-4b83804218cb)  
-![image](https://github.com/user-attachments/assets/40e23168-771a-4314-abe8-8cc9a581371b)  
+
+![image](https://github.com/user-attachments/assets/40e23168-771a-4314-abe8-8cc9a581371b) 
+
 ![image](https://github.com/user-attachments/assets/faa72302-6b8a-4939-a245-3afdee2923b9)  
+
 ![image](https://github.com/user-attachments/assets/dd403604-000b-4194-8c43-9ac3e788cd65)  
+
 ![image](https://github.com/user-attachments/assets/13ed15c3-29df-4de0-ab6b-bcbd44be798a)  
+
 ![image](https://github.com/user-attachments/assets/26b180d4-dfa2-45ed-b7ee-1a39857bff7c)  
+
 ![image](https://github.com/user-attachments/assets/699f3d54-2ddc-426c-b9d8-69513f8b4ab6)  
+
 ![image](https://github.com/user-attachments/assets/d5e47d3e-c23f-408c-aeb8-6c1fa63b2324)  
+
 ![image](https://github.com/user-attachments/assets/22b1e3a6-8e0b-485d-a5b9-8a7eae4553b0)  
+
 ![image](https://github.com/user-attachments/assets/26ff1c89-09ca-43e0-894c-299dc7c22b6b)
+
 ![image](https://github.com/user-attachments/assets/5d1ed1be-b5fc-482d-aab6-fb985a772eaa)  
-![image](https://github.com/user-attachments/assets/24b85e44-265e-4871-8985-7bf83ad8dcea)  
+
+![image](https://github.com/user-attachments/assets/453e61b6-787c-4485-ade7-551558331369)  
+
 ![image](https://github.com/user-attachments/assets/ea71d5be-123a-48db-801d-9d0a80d78f29)  
-![image](https://github.com/user-attachments/assets/ba638a96-34b5-4e2e-9721-5a53a47ed5bf)  
-![2385c0382aa3de2fcd5c7355d7c6521](https://github.com/user-attachments/assets/07df2ed5-0531-47bc-acc7-f05a9a9b24ac)  
+
+![image](https://github.com/user-attachments/assets/a80aaaac-18f4-4f97-8389-348f40f611e8)  
+
+![8d131ecd018b5e1607a675a82780c46](https://github.com/user-attachments/assets/100a0c11-b2e6-4686-8334-6232f18db2b1)  
+
 ![84b28f3c1898c5d0c2b994eb89ad85e](https://github.com/user-attachments/assets/c2cb53b2-ecfa-4f8f-baa0-b5c209738b27)  
-![image](https://github.com/user-attachments/assets/c1effe52-d09e-4567-be04-2bb395ecbdc0)  
+
+![d36b7932237888f0b4e8a17a8cf1239](https://github.com/user-attachments/assets/d7743b8f-8ea8-41d1-ae85-a82b0d2ca709)
+
 ![image](https://github.com/user-attachments/assets/267896e3-fb09-4f8f-ab42-185460d57cd6)  
-![image](https://github.com/user-attachments/assets/b7e6fa63-9bbf-4996-8fea-fd63099892ea)  
-![image](https://github.com/user-attachments/assets/d9ab9539-6d1e-4c2c-9a5e-bd3c029eecf0)  
+
+![image](https://github.com/user-attachments/assets/9ed5c85a-90cd-4189-a76c-c2772cd55357)  
+
+![7177708a2d598e10574db3f75e57915](https://github.com/user-attachments/assets/c3ce6b63-2641-4c99-8ba1-90132312111f)  
+ 
 ![image](https://github.com/user-attachments/assets/b4ed5fb3-0029-4617-a3fd-ed1ec5c7e976)  
 ![image](https://github.com/user-attachments/assets/384d845b-7c00-45e1-9453-b93724d0c2cf)  
 ![image](https://github.com/user-attachments/assets/0488074d-b2a5-496b-9999-862f7b8143bc)  
-再将下面的内容复制到metadata.json文件中,根据下面的内容填写自己的json文件。    
-***注：logo图片的url,需要在https://github.com/xiaoyu2691/nodex/blob/main/logo.png前加入“raw.”，否则格式可能会出错***  
+将下面的内容复制到metadata.json文件中,以下面的内容为例子填写自己的json文件。    
+***注：logo图片的url,需要以https://raw.githubusercontent.com/为开头，否则格式可能会出错***  
 ```bash
 {
   "name": "node-x",
   "website": "https://node-x.xyz/",
   "description": "Node-X is a leading Web3 infrastructure platform specializing in node deployment, management, and monitoring, integrating AI optimization for decentralized ecosystems and supporting DePIN projects.",
-  "logo": "https://raw.githubusercontent.com/xiaoyu2691/node-x/refs/heads/main/files/logo.png",
+  "logo": "https://raw.githubusercontent.com/nodex/node-x/refs/heads/main/files/logo.png",
   "twitter": "https://x.com/nodex_xyz"
 }
 ```
@@ -111,7 +131,7 @@ eigenlayer operator keys create --key-type ecdsa "wallet_name"
 eigenlayer operator keys create --key-type bls "wallet_name"
 ```
 ![image](https://github.com/user-attachments/assets/2d684825-3c44-4ac3-8802-cfd9863c79e5)  
-### 4、配置operator.yaml和metadata.json  
+### 4、配置operator.yaml  
 **配置operator**  
 ```bash
 eigenlayer operator config create
@@ -127,15 +147,6 @@ https://ethereum-holesky-rpc.publicnode.com
 vim operator.yaml
 ```
 ![53558848abde5821995f4c619964f1f](https://github.com/user-attachments/assets/9f09696d-9e29-4013-bc4e-88530abdb85f)  
-
-**配置metadata.json**  
-```bash
-rm -rf metadata.json
-```
-```bash
-vim metadata.json
-```
-![image](https://github.com/user-attachments/assets/830a94ed-b74b-4631-a959-d05e9a2d00af)  
 
 ### 5、注册操作者  
 ```bash
@@ -185,46 +196,14 @@ vim chainbase-avs.sh
 -e OPERATOR_BLS_KEY_PASSWORD=$NODE_ECDSA_KEY_PASSWORD -e OPERATOR_ECDSA_KEY_PASSWORD=$NODE_ECDSA_KEY_PASSWORD
 ```
 按“i”键进行修改，修改完成后，按“esc”键并输入“：wq”保存退出。  
-### 3、配置prometheus.yml  
-```bash
-vim prometheus.yml
-```
-将以下内容复制粘贴到prometheus.yml文件中  
-```bash
-global:
-  scrape_interval: 15s
-  evaluation_interval: 15s
-  external_labels:
-    operator: ${OPERATOR_NAME}
 
-remote_write:
-  - url: http://testnet-metrics.chainbase.com:9090/api/v1/write
-    write_relabel_configs:
-      - source_labels: [job]
-        regex: "chainbase-avs"
-        action: keep
-
-scrape_configs:
-  - job_name: "chainbase-avs"
-    metrics_path: /metrics
-    static_configs:
-      - targets: ["manuscript_node:9090"]
-
-  - job_name: "flink"
-    metrics_path: /metrics
-    static_configs:
-      - targets:
-        - "chainbase_taskmanager:9249"
-        - "chainbase_jobmanager:9249"
-```
-同上，保存退出即可。  
-### 4、注册AVS运营商  
+### 3、注册AVS运营商  
 ```bash
 ./chainbase-avs.sh register
 ```
 返回结果如下：  
 ![image](https://github.com/user-attachments/assets/826dbf37-a4f8-4594-82a7-83e21e1d63c5)  
-### 5、运行节点  
+### 4、运行节点  
 ```bash
 ./chainbase-avs.sh run
 ```
