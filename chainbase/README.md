@@ -34,8 +34,78 @@ Chainbase是全球最大的区块链数据网络，采用创新双链架构，�
 ![image](https://github.com/user-attachments/assets/24b85e44-265e-4871-8985-7bf83ad8dcea)  
 ![image](https://github.com/user-attachments/assets/ea71d5be-123a-48db-801d-9d0a80d78f29)  
 ![image](https://github.com/user-attachments/assets/ba638a96-34b5-4e2e-9721-5a53a47ed5bf)  
+![2385c0382aa3de2fcd5c7355d7c6521](https://github.com/user-attachments/assets/07df2ed5-0531-47bc-acc7-f05a9a9b24ac)  
+![84b28f3c1898c5d0c2b994eb89ad85e](https://github.com/user-attachments/assets/c2cb53b2-ecfa-4f8f-baa0-b5c209738b27)  
+![image](https://github.com/user-attachments/assets/c1effe52-d09e-4567-be04-2bb395ecbdc0)  
+![image](https://github.com/user-attachments/assets/267896e3-fb09-4f8f-ab42-185460d57cd6)  
+![image](https://github.com/user-attachments/assets/b7e6fa63-9bbf-4996-8fea-fd63099892ea)  
+![image](https://github.com/user-attachments/assets/d9ab9539-6d1e-4c2c-9a5e-bd3c029eecf0)  
+![image](https://github.com/user-attachments/assets/b4ed5fb3-0029-4617-a3fd-ed1ec5c7e976)  
+![image](https://github.com/user-attachments/assets/384d845b-7c00-45e1-9453-b93724d0c2cf)  
+![image](https://github.com/user-attachments/assets/0488074d-b2a5-496b-9999-862f7b8143bc)  
+再将下面的内容复制到metadata.json文件中,根据下面的内容填写自己的json文件。    
+***注：logo图片的url,需要在https://github.com/xiaoyu2691/nodex/blob/main/logo.png前加入“raw.”，否则格式可能会出错***  
+```bash
+{
+  "name": "node-x",
+  "website": "https://node-x.xyz/",
+  "description": "Node-X is a leading Web3 infrastructure platform specializing in node deployment, management, and monitoring, integrating AI optimization for decentralized ecosystems and supporting DePIN projects.",
+  "logo": "https://raw.githubusercontent.com/xiaoyu2691/node-x/refs/heads/main/files/logo.png",
+  "twitter": "https://x.com/nodex_xyz"
+}
+```
+![image](https://github.com/user-attachments/assets/3584b27a-a6c3-4bc1-b93f-d78da718355a)  
+![image](https://github.com/user-attachments/assets/99c7069b-4909-46c9-98b4-cea5e49e525a)  
+### 领水  
+选择holesky ETH，输入下面生成的操作者钱包地址，点击获取，请访问[holesky领水](https://cloud.google.com/application/web3/faucet/ethereum/holesky)    
+![image](https://github.com/user-attachments/assets/3101a242-36fa-4247-bb0c-770f7187774d)  
 
+## 服务器准备(若已安装，则跳过)    
+### 1、安装docker     
+若安装出现问题，请访问 [Docker 官网](https://docs.docker.com/engine/install/)：
+   ```bash
+   curl -fsSL https://get.docker.com -o get-docker.sh
+   ```
+   ```bash
+   sh get-docker.sh
+   ```
+### 2、安装docker-compose  
+若安装出现问题，请访问[Docker-compose](https://docs.docker.com/compose/install/linux/#install-using-the-repository)  
+```bash
+sudo apt-get update
+```
+```bash
+sudo apt-get install docker-compose-plugin
+```
+### 3、安装go  
+```bash
+cd $HOME && \
+ver="1.22.0" && \
+wget "https://golang.org/dl/go$ver.linux-amd64.tar.gz" && \
+sudo rm -rf /usr/local/go && \
+sudo tar -C /usr/local -xzf "go$ver.linux-amd64.tar.gz" && \
+rm "go$ver.linux-amd64.tar.gz" && \
+echo "export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin" >> ~/.bash_profile && \
+source ~/.bash_profile && \
+go version
+```
+## 注册操作者  
+### 1、安装eigenlayer  
+```bash
+curl -sSfL https://raw.githubusercontent.com/layr-labs/eigenlayer-cli/master/scripts/install.sh | sh -s
+export PATH=$PATH:~/bin
+eigenlayer --version
+```
+### 2、克隆chainbase存储库  
+```bash
+git clone https://github.com/chainbase-labs/chainbase-avs-setup
+cd chainbase-avs-setup/holesky
+```
+### 3、创建ECDSA和BLS  
+```bash
+eigenlayer operator keys create --key-type ecdsa "wallet_name"
+```
 
-
-
-
+```bash
+eigenlayer operator keys create --key-type bls "wallet_name"
+```
