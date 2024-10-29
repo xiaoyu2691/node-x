@@ -1,19 +1,51 @@
-# Ocean Pro 节点部署指南  
+# Ocean节点部署指南  
 
-Chainbase是全球最大的区块链数据网络，采用创新双链架构，集成全链数据以构建统一生态系统。其双重权益模型支持高吞吐量和低延迟，增强网络安全性。Chainbase的目标是让数据更加开放、可访问，并广泛应用于钱包管理、安全监控、人工智能、社交互动、DeFi等领域，为开发者提供强大支持。  
+Ocean 是一个去中心化的数据交换协议，为人工智能提供数据支持。其技术核心包括数据 NFT 和数据代币，用于去中心化的访问控制，以及“计算到数据”功能，实现隐私保护的数据买卖。此外，Ocean 拥有活跃的社区生态系统，聚集了众多开发者、数据科学家和 OCEAN 持有者，并通过社交媒体平台保持互动。  
 
 # 前置条件
-
-- linux环境的设备
-- 需要注册操作者（推特网址、一个png格式的logo图片、一个github账号）  
+- 一个META钱包地址
 ## 存储服务器的推荐要求
 
 | 资源          | 规格                             |
 |---------------|----------------------------------|
-| 操作环境  |     linux环境                        |
-| CPU 核心数    | ≥2                               |
-| 内存          | ≥ 8 GB                           |
-| 带宽          | ≥ 5 Mbps                        |
-| 磁盘           | ≥50GB                             |
+| CPU           | ≥1                               |
+| 内存          | ≥ 2 GB                           |
+| 磁盘           | ≥4GB                             |
 
-# 以下是Chainbase AVS Operator节点的搭建步骤（以ubuntu服务器上部署为例）：  
+# 以下是Ocean节点的搭建步骤（以ubuntu服务器上部署为例）： 
+## 服务器准备  
+### 1、安装curl  
+  ```bash
+  sudo apt-get update && sudo apt-get upgrade -y
+  ```
+```bash
+sudo apt install curl -y
+```
+### 2、安装Docker  
+若安装出现问题，请访问 [Docker 官网](https://docs.docker.com/engine/install/)：
+
+   ```bash
+   curl -fsSL https://get.docker.com -o get-docker.sh
+   ```
+   ```bash
+   sh get-docker.sh
+   ```
+### 3、安装docker-compose  
+若安装出现问题，请访问[Docker-compose](https://docs.docker.com/compose/install/linux/#install-using-the-repository)  
+```bash
+sudo apt-get update
+```
+```bash
+sudo apt-get install docker-compose-plugin
+```
+## 安装Ocean-node  
+### 1、创建项目文件夹  
+```bash
+mkdir ocean && cd ocean
+```
+### 2、下载脚本并执行  
+```bash
+
+
+
+
