@@ -116,6 +116,12 @@ function upgrade_cess() {
 	sudo cess start
 }
 
+#领取奖励
+function get_reward() {
+	#领取奖励
+ 	sudo cess miner claim
+}
+
 #查看节点状态
 function cat_status() {
 	sudo cess miner stat
@@ -137,8 +143,9 @@ function main_menu() {
 	echo "3、 查看节点状态"
 	echo "4、 查看节点日志"
 	echo "5、 升级节点"
-	echo "6、 退出"
-	read -p "请输入选项（1-6）：" OPTION
+ 	echo "6、 领取奖励"
+	echo "7、 退出"
+	read -p "请输入选项（1-7）：" OPTION
 
 	case $OPTION in
 	1) install_cess_node ;;
@@ -146,7 +153,8 @@ function main_menu() {
 	3) cat_status ;;
  	4) cat_logs ;;
 	5) upgrade_cess ;;
-	6) cat_logs ;;
+ 	6) get_reward ;;
+	7) cat_logs ;;
 	*) echo "无效选项。" ;;
 	esac
 }
