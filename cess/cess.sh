@@ -22,26 +22,26 @@ fi
 
 #安装snap以及yq
 function install_snap_and_yq() {
-	# 判断是否安装了 Snap
-	if! command -v snap &> /dev/null; then
-    		echo "Snap 未安装，正在安装 Snap..."
-    		sudo apt update
-    		sudo apt install snapd
-	else
-   		 snap_version=$(snap --version | awk '{print $2}')
-    		echo "Snap 已安装，版本为：$snap_version"
-	fi
+        # 判断是否安装了 Snap
+        if ! command -v snap &> /dev/null 2>&1; then
+                echo "Snap 未安装，正在安装 Snap..."
+                sudo apt update
+                sudo apt install snapd -y
+        else
+                 snap_version=$(snap --version | awk '{print $2}')
+                echo "Snap 已安装，版本为：$snap_version"
+        fi
 
-	# 判断是否安装了 yq
-	if! command -v yq &> /dev/null; then
-    		echo "yq 未安装，正在安装 yq..."
-    		sudo snap install yq
-    		yq_version=$(yq --version | awk '{print $2}')
-    		echo "yq 安装完成，版本为：$yq_version"
-	else
-    		yq_version=$(yq --version | awk '{print $2}')
-    		echo "yq 已安装，版本为：$yq_version"
-	fi
+        # 判断是否安装了 yq
+        if ! command -v yq &> /dev/null 2>&1; then
+                echo "yq 未安装，正在安装 yq..."
+                sudo snap install yq
+                yq_version=$(yq --version | awk '{print $2}')
+                echo "yq 安装完成，版本为：$yq_version"
+        else
+                yq_version=$(yq --version | awk '{print $2}')
+                echo "yq 已安装，版本为：$yq_version"
+        fi
 }
 
 #检查系统是否安装防火墙，打开4001端口
