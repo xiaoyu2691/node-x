@@ -135,17 +135,18 @@ function main_menu() {
 	echo "1、 安装CESS存储节点"
 	echo "2、 设置配置并运行CESS节点"
 	echo "3、 查看节点状态"
-	echo "3、 查看节点日志"
-	echo "4、 升级节点"
-	echo "5、 退出"
-	read -p "请输入选项（1-4）：" OPTION
+	echo "4、 查看节点日志"
+	echo "5、 升级节点"
+	echo "6、 退出"
+	read -p "请输入选项（1-6）：" OPTION
 
 	case $OPTION in
 	1) install_cess_node ;;
 	2) set_config ;;
 	3) cat_status ;;
-	4)upgrade_cess ;;
-	5) cat_logs ;;
+ 	4) cat_logs ;;
+	5) upgrade_cess ;;
+	6) cat_logs ;;
 	*) echo "无效选项。" ;;
 	esac
 }
