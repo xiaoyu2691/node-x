@@ -102,6 +102,7 @@ function set_config() {
 #升级节点
 function upgrade_cess() {
 	#停止节点
+ 	sudo cess miner exit
 	sudo cess stop
 	sudo cess down
 
