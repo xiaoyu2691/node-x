@@ -76,7 +76,7 @@ services:
       - PUID=1000
       - PGID=1000
       - TZ=Europe/London
-      - CHROME_CLI=https://x.com/ferdie_jhovie #optional
+      - CHROME_CLI=https://x.com/nodex_xyz #optional
     volumes:
       - /root/chromium/config:/config
     ports:
