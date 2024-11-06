@@ -76,9 +76,10 @@ services:
       - PUID=1000
       - PGID=1000
       - TZ=Europe/London
-      - CHROME_CLI=https://x.com/nodex_xyz #optional
+      - CHROME_CLI=https://app.aigaea.net/login  #optional
+      - CHROME_CLI=https://oasis.ai/  #optional
     volumes:
-      - /root/chromium/config:/config
+      - $HOME/chromium/config:/config
     ports:
       - 3010:3000   #Change 3010 to your favorite port if needed
       - 3011:3001   #Change 3011 to your favorite port if needed
@@ -95,11 +96,11 @@ EOF
 function uninstall_docker() {
     echo "正在停止 Docker..."
     # 停止 Docker 容器
-    cd /root/chromium
+    cd $HOME/chromium
     docker compose down
 
     # 删除 文件 目录
-    rm -rf /root/chromium
+    rm -rf $HOME/chromium
     echo "节点已卸载完成。"
 }
 
