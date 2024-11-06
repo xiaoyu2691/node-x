@@ -14,20 +14,8 @@ fi
 if ! command -v docker &> /dev/null; then
     echo "Docker 未安装，正在安装..."
     
-    # 更新系统
-    sudo apt update -y && sudo apt upgrade -y
-    
-    # 移除旧版本
-    for pkg in docker.io docker-doc docker-compose podman-docker containerd runc; do
-        sudo apt-get remove -y $pkg
-    done
-
-    # 安装必要的包
-    sudo apt-get update
-    sudo apt-get install -y ca-certificates curl gnupg
-    sudo install -m 0755 -d /etc/apt/keyrings
-    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-    sudo chmod a+r /etc/apt/keyrings/docker.gpg
+    curl -fsSL https://get.docker.com -o get-docker.sh
+    sh get-docker.sh
 
     # 添加 Docker 的源
     echo \
@@ -57,8 +45,8 @@ echo "已进入 chromium 目录"
 # 创建 docker-compose.yaml 文件并启动的函数
 function deploy_browser() {
     # 获取用户输入
-    read -p "请输入 CUSTOM_USER: " CUSTOM_USER
-    read -sp "请输入 PASSWORD: " PASSWORD
+    read -p "请输入用户名: " CUSTOM_USER
+    read -sp "请输入密码: " PASSWORD
     echo
 
     # 创建 docker-compose.yaml 文件
