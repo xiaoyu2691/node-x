@@ -65,7 +65,7 @@ services:
       - PGID=1000
       - TZ=Europe/London
       - CHROME_CLI=https://app.aigaea.net/login  #optional
-      - CHROME_CLI=https://oasis.ai/  #optional
+      
     volumes:
       - $HOME/chromium/config:/config
     ports:
