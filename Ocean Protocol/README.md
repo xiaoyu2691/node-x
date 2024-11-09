@@ -82,7 +82,6 @@ http://<ip>:<端口>/dashboard
 ```
 ![image](https://github.com/user-attachments/assets/b23ff964-bad3-4fdc-8184-8274f8855d84)   
 
-## 四、一键部署  
 
 
 
