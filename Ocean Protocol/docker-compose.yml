@@ -11,7 +11,7 @@ services:
       - '9002:9002'
       - '9003:9003'
     environment:
-      PRIVATE_KEY: '0xd8150e3b27b3ead4bcc0590220c97d154a486542f3e85160a7ec7cace6fcc341'
+      PRIVATE_KEY: <<private key>>
       RPCS: '{"1":{"rpc":"https://mainnet.infura.io/v3/0b6c2b90925b45d49a60fa3330bdec5a","fallbackRPCs":["https://rpc.ankr.com/eth","https://1rpc.io/eth","https://eth.api.onfinality.io/public"],"chainId":1,"network":"mainnet","chunkSize":100},"10":{"rpc":"https://optimism-mainnet.infura.io/v3/0b6c2b90925b45d49a60fa3330bdec5a","fallbackRPCs":["https://optimism-mainnet.public.blastapi.io","https://rpc.ankr.com/optimism","https://optimism-rpc.publicnode.com"],"chainId":10,"network":"optimism","chunkSize":100},"137":{"rpc":"https://polygon-mainnet.infura.io/v3/0b6c2b90925b45d49a60fa3330bdec5a","fallbackRPCs":["https://polygon-mainnet.public.blastapi.io","https://1rpc.io/matic","https://rpc.ankr.com/polygon"],"chainId":137,"network":"polygon","chunkSize":100},"23294":{"rpc":"https://sapphire.oasis.io","fallbackRPCs":["https://1rpc.io/oasis/sapphire"],"chainId":23294,"network":"sapphire","chunkSize":100},"23295":{"rpc":"https://testnet.sapphire.oasis.io","chainId":23295,"network":"sapphire-testnet","chunkSize":100},"11155111":{"rpc":"https://eth-sepolia.public.blastapi.io","fallbackRPCs":["https://1rpc.io/sepolia","https://eth-sepolia.g.alchemy.com/v2/demo"],"chainId":11155111,"network":"sepolia","chunkSize":100},"11155420":{"rpc":"https://optimism-sepolia.infura.io/v3/0b6c2b90925b45d49a60fa3330bdec5a","fallbackRPCs":["https://endpoints.omniatech.io/v1/op/sepolia/public","https://optimism-sepolia.blockpi.network/v1/rpc/public"],"chainId":11155420,"network":"optimism-sepolia","chunkSize":100}}'
       DB_URL: 'http://typesense:8108/?apiKey=xyz'
       IPFS_GATEWAY: 'https://ipfs.io/'
@@ -26,7 +26,7 @@ services:
       INTERFACES: '["HTTP","P2P"]'
       #      ALLOWED_VALIDATORS: ''
       #      INDEXER_NETWORKS: '[]'
-      ALLOWED_ADMINS: '["0xCdfb0Cb6C01e8d11f98f946AE906BCbcE2b0FfdC"]'
+      ALLOWED_ADMINS: '["wallet address"]'
       #      INDEXER_INTERVAL: ''
       DASHBOARD: 'true'
       #      RATE_DENY_LIST: ''
