@@ -1,12 +1,5 @@
 #!/bin/bash
 
-# 检查是否以root用户运行脚本
-if [ "$(id -u)" != "0" ]; then
-    echo "此脚本需要以root用户权限运行。"
-    echo "请尝试使用 'sudo -i' 命令切换到root用户，然后再次运行此脚本。"
-    exit 1
-fi
-
  # 检查 Docker 是否已安装
     if ! command -v docker &> /dev/null; then
         echo "Docker 未安装，正在安装 Docker..."
@@ -34,22 +27,84 @@ fi
     fi
 
 #注册RLN并启动waku节点
-function install_waku_node() {
+function install_node() {
 	#克隆源文件
 	git clone https://github.com/waku-org/nwaku-compose
 	
 	#切换到文件目录中
 	cd /root/nwaku-composecd
-  
-  echo "开始注册成为RLN"
+  	#复制.env文件
+   	cp .env.example .env
+
+    	echo "配置.env文件"
+     	env_file=".env"
+	echo "请输入你的RPC(https://sepolia.infura.io/v3/<key>):"
+ 	read RLN_RELAY_ETH_CLIENT_ADDRESS
+  	echo "请输入你的私钥（至少需要持有0.6 Sepolia ETH):"
+   	read ETH_TESTNET_KEY
+    	echo "请输入你的密码："
+     	read RLN_RELAY_CRED_PASSWORD
+
+ 	echo "RLN_RELAY_ETH_CLIENT_ADDRESS=$RLN_RELAY_ETH_CLIENT_ADDRESS" > $env_file
+	echo "ETH_TESTNET_KEY=$ETH_TESTNET_KEY" >> $env_file
+ 	echo "RLN_RELAY_CRED_PASSWORD=$RLN_RELAY_CRED_PASSWORD" >> $env_file
+
+  	echo ".env文件已配置完成,内容如下"
+   	cat $env_file
+  	echo "开始注册成为RLN"
 	#执行安装脚本
 	./register_rln.sh
 	echo "RLN注册成功并启动waku节点！！！"
-  docker-compose up -d
+  	docker-compose up -d
+}
+
+#卸载节点
+function uninstall_node() {
+	cd /root/nwaku-composecd
+ 	docker-compose down
+  	cd
+   	rm -rf nwaku-composecd
+}
+
+#备份
+function backup {
+    # 定义.env文件的路径，这里假设就在当前目录下创建，如果需要放在其他目录需修改路径
+    env_file=".env"
+    # 定义备份文件的存放目录，这里假设在当前目录下的backup文件夹中，若不存在会自动创建
+    backup_dir="backup"
+    # 获取当前时间戳，用于给备份文件命名
+    timestamp=$(date +%Y%m%d%H%M%S)
+
+    # 创建备份目录（如果不存在）
+    mkdir -p $backup_dir
+
+    # 备份private_key配置项
+    backup_private_key
+    # 备份password配置项
+    backup_password
+}
+
+function backup_private_key {
+    if grep -q "^private_key=" $env_file; then
+        existing_private_key=$(grep "^private_key=" $env_file | cut -d '=' -f 2)
+        backup_file="$backup_dir/private_key_backup_$timestamp.txt"
+        echo "private_key=$existing_private_key" > $backup_file
+        echo "已成功备份private_key到文件：$backup_file"
+    fi
+}
+
+function backup_password {
+    if grep -q "^password=" $env_file; then
+        existing_password=$(grep "^password=" $env_file | cut -d '=' -f 2)
+        backup_file_password="$backup_dir/password_backup_$timestamp.txt"
+        echo "password=$existing_password" > $backup_file_password
+        echo "已成功备份password到文件：$backup_file_password"
+    fi
 }
 
 #查看节点日志
 function cat_logs() {
+	cd /root/nwaku-composecd
 	docker-compose logs -f nwaku
 }
 
@@ -59,23 +114,19 @@ function main_menu() {
 	echo "=============================node-X节点一键部署========================================"
 	echo "============================waku节点安装===================================="
 	echo "请选择要执行的操作"
-	echo "1、 安装CESS存储节点"
-	echo "2、 设置配置并运行CESS节点"
-	echo "3、 查看节点状态"
-	echo "4、 查看节点日志"
-	echo "5、 升级节点"
- 	echo "6、 领取奖励"
-	echo "7、 退出"
-	read -p "请输入选项（1-7）：" OPTION
+	echo "1、 安装waku节点"
+	echo "2、 查看日志"
+	echo "3、 备份信息"
+	echo "4、 卸载节点"
+	echo "5、 退出"
+	read -p "请输入选项（1-5）：" OPTION
 
 	case $OPTION in
-	1) install_cess_node ;;
-	2) set_config ;;
-	3) cat_status ;;
- 	4) cat_logs ;;
-	5) upgrade_cess ;;
- 	6) get_reward ;;
-	7) cat_logs ;;
+	1) install_node ;;
+	2) cat_logs ;;
+	3) backup ;;
+ 	4) uninstall_node ;;
+	5) exit 0 ;;
 	*) echo "无效选项。" ;;
 	esac
 }
