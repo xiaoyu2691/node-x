@@ -32,7 +32,7 @@ function install_node() {
 	git clone https://github.com/waku-org/nwaku-compose
 	
 	#切换到文件目录中
-	cd /root/nwaku-composecd
+	cd /root/nwaku-compose
   	#复制.env文件
    	cp .env.example .env
 
