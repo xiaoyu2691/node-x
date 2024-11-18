@@ -114,6 +114,13 @@ function cat_logs() {
 	docker-compose logs -f nwaku
 }
 
+#重启节点
+function restart_node() {
+	cd /root/nwaku-compose
+ 	docker-compose down
+  	docker-compose up -d
+}
+
 #主菜单
 function main_menu() {
 	clear
@@ -124,15 +131,17 @@ function main_menu() {
 	echo "2、 查看日志"
 	echo "3、 备份信息"
 	echo "4、 卸载节点"
-	echo "5、 退出"
-	read -p "请输入选项（1-5）：" OPTION
+ 	echo "5、 重启节点"
+	echo "6、 退出"
+	read -p "请输入选项（1-6）：" OPTION
 
 	case $OPTION in
 	1) install_node ;;
 	2) cat_logs ;;
 	3) backup ;;
  	4) uninstall_node ;;
-	5) exit 0 ;;
+  	5) restart_node ;;
+	6) exit 0 ;;
 	*) echo "无效选项。" ;;
 	esac
 }
