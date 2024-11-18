@@ -48,6 +48,11 @@ function install_node() {
  	echo "RLN_RELAY_ETH_CLIENT_ADDRESS=$RLN_RELAY_ETH_CLIENT_ADDRESS" > $env_file
 	echo "ETH_TESTNET_KEY=$ETH_TESTNET_KEY" >> $env_file
  	echo "RLN_RELAY_CRED_PASSWORD=$RLN_RELAY_CRED_PASSWORD" >> $env_file
+  	echo "NWAKU_IMAGE=" >> $env_file
+	echo "NODEKEY=" >> $env_file
+    	echo "DOMAIN=" >> $env_file
+	echo "EXTRA_ARGS=" >> $env_file
+      	echo "STORAGE_SIZE=" >> $env_file
 
   	echo ".env文件已配置完成,内容如下"
    	cat $env_file
@@ -55,6 +60,7 @@ function install_node() {
 	#执行安装脚本
 	./register_rln.sh
 	echo "RLN注册成功并启动waku节点！！！"
+ 
   	docker-compose up -d
 }
 
