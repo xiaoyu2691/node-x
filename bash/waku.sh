@@ -59,9 +59,9 @@ EOF
 
   	echo "开始注册成为RLN"
 	#执行安装脚本
+ 	cd nwaku-compose
 	./register_rln.sh
 	echo "RLN注册成功并启动waku节点！！！"
- 
   	docker-compose up -d
 }
 
