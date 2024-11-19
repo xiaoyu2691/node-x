@@ -64,7 +64,14 @@ EOF
 	#生成配置并注册RLN
 	cd nwaku-compose
 	./register_rln.sh
- 	docker-compose up -d
+ 	sleep 25
+
+  	# 检查指定文件夹下是否存在keystore.json文件
+if [ -f "$/root/nwaku-compose/keystore/keystore.json" ]; then
+    docker-compose up -d
+else
+    exit 1
+end
 }
 
 #卸载节点
