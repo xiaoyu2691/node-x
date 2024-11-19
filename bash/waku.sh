@@ -26,20 +26,24 @@
         echo "Docker-compose 已安装，跳过安装。"
     fi
 
-#注册RLN并启动waku节点
-function install_node() {
+#配置.env文件
+function env_node() {
+	local RPC="$1"
+	local PRIVATE_KEY="$2"
+ 	local PASSWORD="$3"
+
 	#克隆源文件
 	git clone https://github.com/waku-org/nwaku-compose
 
-    	# 配置文件路径
-  local env_file="/root/nwaku-compose/.env"
-  mkdir -p "$(dirname "$env_file")"
+	# 配置文件路径
+	local env_file="/root/nwaku-compose/.env"
+	mkdir -p "$(dirname "$env_file")"
 
   # 写入配置文件
   cat <<EOF > "$env_file"
 # RPC URL for accessing testnet via HTTP.
 # e.g. https://sepolia.infura.io/v3/123aa110320f4aec179150fba1e1b1b1
-RLN_RELAY_ETH_CLIENT_ADDRESS=https://sepolia.infura.io/v3/"$KEY"
+RLN_RELAY_ETH_CLIENT_ADDRESS="$RPC"
 
 # Private key of testnet where you have sepolia ETH that would be staked into RLN contract.
 # Note: make sure you don't use the '0x' prefix.
@@ -57,12 +61,10 @@ EXTRA_ARGS=
 STORAGE_SIZE=
 EOF
 
-  	echo "开始注册成为RLN"
-	#执行安装脚本
- 	cd nwaku-compose
+	#生成配置并注册RLN
+	cd nwaku-compose
 	./register_rln.sh
-	echo "RLN注册成功并启动waku节点！！！"
-  	docker-compose up -d
+ 	docker-compose up -d
 }
 
 #卸载节点
@@ -132,7 +134,7 @@ function autoinstall() {
     
     install_node
     sleep 15
-    config_node "$KEY" "$PRIVATE_KEY" "$PASSWORD"
+    env_node "$KEY" "$PRIVATE_KEY" "$PASSWORD"
     echo -e "自动安装和配置已完成!"
 }
 #主菜单
@@ -162,7 +164,7 @@ function main_menu() {
 # 脚本入口，根据传入参数执行相应操作
 if [ "$1" == "autoinstall" ]; then
     if [ -z "$2" ] || [ -z "$3" ] || [ -z "$4" ]; then
-        echo -e "${RED}使用方法: ./cess.sh autoinstall <获取API KEY> <获取私钥> <获取密码>${NC}"
+        echo -e "${RED}使用方法: ./waku.sh autoinstall <获取API KEY> <获取私钥> <获取密码>${NC}"
         exit 1
     else
         autoinstall "$2" "$3" "$4"
