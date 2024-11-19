@@ -126,15 +126,15 @@ function restart_node() {
 
 # 自动安装与初始化函数
 function autoinstall() {
-    local PRIVATE_KEY=$1
-    local KEY=$2
+    local RPC=$1
+    local PRIVATE_KEY=$2
     local PASSWORD=$3
     
     echo -e "正在进行自动安装..."
     
     install_node
     sleep 15
-    env_node "$KEY" "$PRIVATE_KEY" "$PASSWORD"
+    env_node "$RPC" "$PRIVATE_KEY" "$PASSWORD"
     echo -e "自动安装和配置已完成!"
 }
 #主菜单
@@ -164,7 +164,7 @@ function main_menu() {
 # 脚本入口，根据传入参数执行相应操作
 if [ "$1" == "autoinstall" ]; then
     if [ -z "$2" ] || [ -z "$3" ] || [ -z "$4" ]; then
-        echo -e "${RED}使用方法: ./waku.sh autoinstall <获取API KEY> <获取私钥> <获取密码>${NC}"
+        echo -e "${RED}使用方法: ./waku.sh autoinstall <获取RPC> <获取私钥> <获取密码>${NC}"
         exit 1
     else
         autoinstall "$2" "$3" "$4"
