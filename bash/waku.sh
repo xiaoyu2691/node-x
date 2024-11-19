@@ -74,6 +74,7 @@ if [ -f "$/root/nwaku-compose/keystore/keystore.json" ]; then
 	else
 	    exit 1
 	end
+ fi
 }
 
 #设置端口
