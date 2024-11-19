@@ -68,10 +68,54 @@ EOF
 
   	# 检查指定文件夹下是否生成keystore.json文件
 if [ -f "$/root/nwaku-compose/keystore/keystore.json" ]; then
-    docker-compose up -d
-else
-    exit 1
-end
+    
+	# 容器名称
+	container_name="Container nini-compose-nini-1"
+
+	# 检查8000端口是否被占用
+	is_8000_occupied=$(netstat -tln | grep -c :8000)
+	if [ $is_8000_occupied -gt 0 ]; then
+    	echo "8000端口已被占用，准备更换为8088端口。"
+    	new_port_8000=8088
+	else
+    	new_port_8000=8000
+	fi
+
+	# 检查80端口是否被占用
+	is_80_occupied=$(netstat -tln | grep -c :80)
+	if [ $is_80_occupied -gt 0 ]; then
+	    echo "80端口已被占用，准备更换为81端口。"
+	    new_port_80=81
+	else
+	    new_port_80=80
+	fi
+	
+	# 检查新端口8088是否被占用
+	is_8088_occupied=$(netstat -tln | grep -c :8088)
+	if [ $is_8088_occupied -gt 0 ]; then
+	    echo "8088端口已被占用，脚本中断。"
+	    exit 1
+	fi
+	
+	# 检查新端口81是否被占用
+	is_81_occupied=$(netstat -tln | grep -c :81)
+	if [ $is_81_occupied -gt 0 ]; then
+	    echo "81端口已被占用，脚本中断。"
+	    exit 1
+	fi
+	
+	# 停止容器
+	docker stop $container_name
+	
+	# 修改容器端口映射
+	docker container update --publish-rm 8000:8000 --publish-rm 80:80 \
+	    --publish-add $new_port_8000:$new_port_8000 --publish-add $new_port_80:$new_port_80 $container_name
+	echo "已根据端口占用情况成功更新容器 $container_name 的端口映射。"
+	# 启动容器
+	docker-compose up -d
+	else
+	    exit 1
+	end
 }
 
 #卸载节点
