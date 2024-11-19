@@ -68,7 +68,16 @@ EOF
 
   	# 检查指定文件夹下是否生成keystore.json文件
 if [ -f "$/root/nwaku-compose/keystore/keystore.json" ]; then
-    
+	set_port
+ 	# 启动容器
+    	docker-compose up -d
+	else
+	    exit 1
+	end
+}
+
+#设置端口
+function set_port() {
 	# 容器名称
 	container_name="Container nini-compose-nini-1"
 
@@ -106,24 +115,18 @@ if [ -f "$/root/nwaku-compose/keystore/keystore.json" ]; then
 	
 	# 停止容器
 	docker stop $container_name
-	
 	# 修改容器端口映射
 	docker container update --publish-rm 8000:8000 --publish-rm 80:80 \
 	    --publish-add $new_port_8000:$new_port_8000 --publish-add $new_port_80:$new_port_80 $container_name
 	echo "已根据端口占用情况成功更新容器 $container_name 的端口映射。"
-	# 启动容器
-	docker-compose up -d
-	else
-	    exit 1
-	end
 }
 
 #卸载节点
 function uninstall_node() {
-	cd /root/nwaku-composecd
+	cd /root/nwaku-compose
  	docker-compose down
   	cd
-   	rm -rf nwaku-composecd
+   	rm -rf nwaku-compose
 }
 
 #备份
@@ -164,7 +167,7 @@ function backup_password {
 
 #查看节点日志
 function cat_logs() {
-	cd /root/nwaku-composecd
+	cd /root/nwaku-compose
 	docker-compose logs -f nwaku
 }
 
