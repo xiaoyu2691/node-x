@@ -66,7 +66,7 @@ EOF
 	./register_rln.sh
  	sleep 25
 
-  	# 检查指定文件夹下是否存在keystore.json文件
+  	# 检查指定文件夹下是否生成keystore.json文件
 if [ -f "$/root/nwaku-compose/keystore/keystore.json" ]; then
     docker-compose up -d
 else
