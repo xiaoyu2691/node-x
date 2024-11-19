@@ -131,9 +131,7 @@ function autoinstall() {
     local PASSWORD=$3
     
     echo -e "正在进行自动安装..."
-    
-    install_node
-    sleep 15
+
     env_node "$RPC" "$PRIVATE_KEY" "$PASSWORD"
     echo -e "自动安装和配置已完成!"
 }
