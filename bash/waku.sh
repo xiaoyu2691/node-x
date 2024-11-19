@@ -30,32 +30,33 @@
 function install_node() {
 	#克隆源文件
 	git clone https://github.com/waku-org/nwaku-compose
-	
-	#切换到文件目录中
-	cd /root/nwaku-compose
-  	#复制.env文件
-   	cp .env.example .env
 
-    	echo "配置.env文件"
-     	env_file=".env"
-	echo "请输入你的RPC(https://sepolia.infura.io/v3/<key>):"
- 	read RLN_RELAY_ETH_CLIENT_ADDRESS
-  	echo "请输入你的私钥（至少需要持有0.6 Sepolia ETH):"
-   	read ETH_TESTNET_KEY
-    	echo "请输入你的密码："
-     	read RLN_RELAY_CRED_PASSWORD
+    	# 配置文件路径
+  local env_file="/root/nwaku-compose/.env"
+  mkdir -p "$(dirname "$env_file")"
 
- 	echo "RLN_RELAY_ETH_CLIENT_ADDRESS=$RLN_RELAY_ETH_CLIENT_ADDRESS" > $env_file
-	echo "ETH_TESTNET_KEY=$ETH_TESTNET_KEY" >> $env_file
- 	echo "RLN_RELAY_CRED_PASSWORD=$RLN_RELAY_CRED_PASSWORD" >> $env_file
-  	echo "NWAKU_IMAGE=" >> $env_file
-	echo "NODEKEY=" >> $env_file
-    	echo "DOMAIN=" >> $env_file
-	echo "EXTRA_ARGS=" >> $env_file
-      	echo "STORAGE_SIZE=" >> $env_file
+  # 写入配置文件
+  cat <<EOF > "$env_file"
+# RPC URL for accessing testnet via HTTP.
+# e.g. https://sepolia.infura.io/v3/123aa110320f4aec179150fba1e1b1b1
+RLN_RELAY_ETH_CLIENT_ADDRESS=https://sepolia.infura.io/v3/"$KEY"
 
-  	echo ".env文件已配置完成,内容如下"
-   	cat $env_file
+# Private key of testnet where you have sepolia ETH that would be staked into RLN contract.
+# Note: make sure you don't use the '0x' prefix.
+#       e.g. 0116196e9a8abed42dd1a22eb63fa2a5a17b0c27d716b87ded2c54f1bf192a0b
+ETH_TESTNET_KEY="$PRIVATE_KEY"
+
+# Password you would like to use to protect your RLN membership.
+RLN_RELAY_CRED_PASSWORD="$PASSWORD"
+
+# Advanced. Can be left empty in normal use cases.
+NWAKU_IMAGE=
+NODEKEY=
+DOMAIN=
+EXTRA_ARGS=
+STORAGE_SIZE=
+EOF
+
   	echo "开始注册成为RLN"
 	#执行安装脚本
 	./register_rln.sh
@@ -121,6 +122,19 @@ function restart_node() {
   	docker-compose up -d
 }
 
+# 自动安装与初始化函数
+function autoinstall() {
+    local PRIVATE_KEY=$1
+    local KEY=$2
+    local PASSWORD=$3
+    
+    echo -e "正在进行自动安装..."
+    
+    install_node
+    sleep 15
+    config_node "$KEY" "$PRIVATE_KEY" "$PASSWORD"
+    echo -e "自动安装和配置已完成!"
+}
 #主菜单
 function main_menu() {
 	clear
@@ -145,6 +159,15 @@ function main_menu() {
 	*) echo "无效选项。" ;;
 	esac
 }
-
-#显示主菜单
-main_menu
+# 脚本入口，根据传入参数执行相应操作
+if [ "$1" == "autoinstall" ]; then
+    if [ -z "$2" ] || [ -z "$3" ] || [ -z "$4" ]; then
+        echo -e "${RED}使用方法: ./cess.sh autoinstall <获取API KEY> <获取私钥> <获取密码>${NC}"
+        exit 1
+    else
+        autoinstall "$2" "$3" "$4"
+    fi
+else
+    # 调用主菜单
+    main_menu
+fi
