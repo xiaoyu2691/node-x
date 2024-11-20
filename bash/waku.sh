@@ -88,7 +88,7 @@ else
     cd nwaku-compose
     docker-compose up -d
     sleep 15
-    port_used
+    check_and_handle_port_error
 fi
 }
 
