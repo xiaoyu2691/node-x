@@ -96,14 +96,14 @@ fi
 
 #启动失败处理
 function port_used() {
-	specific_text1="address already in use"
+	specific_text1=""
  	# 检查返回结果中是否存在特定内容
 if [[ $result == *"$specific_text1"* ]]; then
-	docker-compose down
+	echo "运行成功！！！！"
+    else 
+     	docker-compose down
     	echo "端口被占用，正在更换端口。"
     	change_port
-    else 
-    	echo "运行成功！！！！"
 fi
 }
 
