@@ -81,27 +81,35 @@ fi
 
 # 检查文件是否存在
 if [! -f "$file_key_path" ]; then
-	echo "注册失败"
-    	exit 1
+    echo "注册失败：文件 $file_key_path 不存在。"
+    exit 1
 else
-    	echo "注册成功！！！"
-	cd nwaku-compose
-	docker-compose up -d
-	sleep 15
-	port_used
+    echo "注册成功！！！"
+    cd nwaku-compose
+    docker-compose up -d
+    sleep 15
+    port_used
 fi
 }
 
-#启动失败处理
-function port_used() {
-	specific_text1="Error response from daemon: driver failed programming external connectivity on endpoint nwaku-compose-nwaku-1"
- 	# 检查返回结果中是否存在特定内容
-if [[ $result == *"$specific_text1"* ]]; then
-    	echo "端口被占用，正在更换端口。"
-    	change_port
-else 
-     	echo "运行成功！！！！"
-fi
+# 检查是否出现端口被占用错误并进行处理
+function check_and_handle_port_error() {
+    result=$(< /dev/stdin)  # 从标准输入获取运行结果（假设运行命令的输出已重定向到这里）
+
+    specific_text="Error response from daemon: driver failed programming external connectivity on endpoint nwaku-compose-nwaku-1"
+
+    if [[ $result == *"$specific_text"* ]]; then
+        echo "检测到端口被占用错误，正在修改容器端口..."
+
+        # 修改nwaku-compose-nwaku-1容器的端口
+        change_port
+
+        # 启动其他容器
+        cd nwaku-compose
+        docker-compose up -d Container nwaku-compose-waku-frontend-1 Container nwaku-compose-prometheus-1 Container nwaku-compose-grafana-1
+    else
+        echo "运行成功！"
+    fi
 }
 
 #设置端口
