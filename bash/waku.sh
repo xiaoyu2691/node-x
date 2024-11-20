@@ -64,18 +64,15 @@ EOF
 	#生成配置并注册RLN
 	cd nwaku-compose
 	./register_rln.sh
- 	sleep 25
+ 	sleep 30
 
   	# 检查指定文件夹下是否生成keystore.json文件
-# 要检查的特定一段话
+# 检查是否已经注册
 specific_text="Your membership has been registered on-chain."
-
-# 要检查的文件路径
+# 检查Keystore.json是否存在
 file_key_path="/root/nwaku-compose/keystore/keystore.json"
-
 # 执行命令并获取返回结果，这里假设执行的命令是 "ls -l"，你需要替换为实际的命令
 result=$(ls -l)
-
 # 检查返回结果中是否存在特定内容
 if [[ $result == *"$specific_text"* ]]; then
     echo "已经注册，直接跳过。"
@@ -84,6 +81,11 @@ fi
 
 # 检查文件是否存在
 if [! -f "$file_key_path" ]; then
+	echo "注册成功！！！"
+ 	set_port
+	cd nwaku-compose
+ 	docker-compose up -d
+else
     echo "注册失败"
     exit 1
 fi
