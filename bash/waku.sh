@@ -64,7 +64,7 @@ EOF
 	#生成配置并注册RLN
 	cd nwaku-compose
 	./register_rln.sh
- 	sleep 30
+ 	sleep 20
 
   	# 检查指定文件夹下是否生成keystore.json文件
 # 检查是否已经注册
@@ -88,7 +88,7 @@ else
  	
 	cd nwaku-compose
  	docker-compose up -d
-	sleep 30
+	sleep 15
  	port_used
   	docker-compose up -d
 fi
@@ -99,8 +99,10 @@ function port_used() {
 	specific_text1="address already in use"
  	# 检查返回结果中是否存在特定内容
 if [[ $result == *"$specific_text1"* ]]; then
-    echo "端口被占用，正在更换端口。"
-    change_port
+    	echo "端口被占用，正在更换端口。"
+    	change_port
+    else 
+    	echo "运行成功！！！！"
 fi
 }
 
