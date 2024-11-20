@@ -108,8 +108,8 @@ function set_port() {
 	# 检查80端口是否被占用
 	is_80_occupied=$(netstat -tln | grep -c :80)
 	if [ $is_80_occupied -gt 0 ]; then
-	    echo "80端口已被占用，准备更换为81端口。"
-	    new_port_80=81
+	    echo "80端口已被占用，准备更换为180端口。"
+	    new_port_80=180
 	else
 	    new_port_80=80
 	fi
@@ -121,10 +121,10 @@ function set_port() {
 	    exit 1
 	fi
 	
-	# 检查新端口81是否被占用
-	is_81_occupied=$(netstat -tln | grep -c :81)
-	if [ $is_81_occupied -gt 0 ]; then
-	    echo "81端口已被占用，脚本中断。"
+	# 检查新端口180是否被占用
+	is_180_occupied=$(netstat -tln | grep -c :180)
+	if [ $is_180_occupied -gt 0 ]; then
+	    echo "180端口已被占用，脚本中断。"
 	    exit 1
 	fi
 	
