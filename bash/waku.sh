@@ -97,7 +97,6 @@ function port_used() {
 	specific_text1="Error response from daemon: driver failed programming external connectivity on endpoint nwaku-compose-nwaku-1"
  	# 检查返回结果中是否存在特定内容
 if [[ $result == *"$specific_text1"* ]]; then
-	docker-compose down
     	echo "端口被占用，正在更换端口。"
     	change_port
 else 
