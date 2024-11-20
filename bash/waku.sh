@@ -94,7 +94,7 @@ fi
 #设置端口
 function set_port() {
 	# 容器名称
-	container_name="Container nini-compose-nini-1"
+	container_name="Container nwaku-compose-nwaku-1"
 
 	# 检查8000端口是否被占用
 	is_8000_occupied=$(netstat -tln | grep -c :8000)
