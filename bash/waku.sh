@@ -66,8 +66,7 @@ EOF
 	./register_rln.sh
  	sleep 20
 
-  	# 检查指定文件夹下是否生成keystore.json文件
-# 检查是否已经注册
+# 检查指定文件夹下是否生成keystore.json文件
 specific_text="Your membership has been registered on-chain."
 # 检查Keystore.json是否存在
 file_key_path="/root/nwaku-compose/keystore/keystore.json"
@@ -94,16 +93,11 @@ fi
 
 # 检查是否出现端口被占用错误并进行处理
 function check_and_handle_port_error() {
-    result=$(< /dev/stdin)  # 从标准输入获取运行结果（假设运行命令的输出已重定向到这里）
-
     specific_text="Error response from daemon: driver failed programming external connectivity on endpoint nwaku-compose-nwaku-1"
-
     if [[ $result == *"$specific_text"* ]]; then
         echo "检测到端口被占用错误，正在修改容器端口..."
-
         # 修改nwaku-compose-nwaku-1容器的端口
         change_port
-
         # 启动其他容器
         cd nwaku-compose
         docker-compose up -d Container nwaku-compose-waku-frontend-1 Container nwaku-compose-prometheus-1 Container nwaku-compose-grafana-1
