@@ -89,7 +89,6 @@ else
 	docker-compose up -d
 	sleep 15
 	port_used
-	docker-compose up -d
 fi
 }
 
@@ -149,6 +148,7 @@ function change_port() {
 	docker container update --publish-rm 8000:8000 --publish-rm 80:80 \
 	    --publish-add $new_port_8000:$new_port_8000 --publish-add $new_port_80:$new_port_80 $container_name
 	echo "已根据端口占用情况成功更新容器 $container_name 的端口映射。"
+ 	docker-compose up -d
 }
 
 #卸载节点
