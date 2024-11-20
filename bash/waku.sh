@@ -85,14 +85,27 @@ if [! -f "$file_key_path" ]; then
     	exit 1
 else
     echo "注册成功！！！"
- 	set_port
+ 	
 	cd nwaku-compose
  	docker-compose up -d
+	sleep 30
+ 	port_used
+  	docker-compose up -d
+fi
+}
+
+#启动失败处理
+function port_used() {
+	specific_text1="address already in use"
+ 	# 检查返回结果中是否存在特定内容
+if [[ $result == *"$specific_text1"* ]]; then
+    echo "端口被占用，正在更换端口。"
+    change_port
 fi
 }
 
 #设置端口
-function set_port() {
+function change_port() {
 	# 容器名称
 	container_name="Container nwaku-compose-nwaku-1"
 
