@@ -87,7 +87,7 @@ else
     echo "注册成功！！！"
     cd nwaku-compose
     docker-compose up -d
-    sleep 15
+    sleep 10
     check_and_handle_port_error
 fi
 }
