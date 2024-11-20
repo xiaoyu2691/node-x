@@ -93,14 +93,14 @@ fi
 
 # 检查是否出现端口被占用错误并进行处理
 function check_and_handle_port_error() {
-    specific_text="Error response from daemon: driver failed programming external connectivity on endpoint nwaku-compose-nwaku-1"
-    if [[ $result == *"$specific_text"* ]]; then
+    error_message="Error response from daemon: driver failed programming external connectivity on endpoint nwaku-compose-nwaku-1"
+    if [[ $result == *"$error_message"* ]]; then
         echo "检测到端口被占用错误，正在修改容器端口..."
         # 修改nwaku-compose-nwaku-1容器的端口
         change_port
         # 启动其他容器
         cd nwaku-compose
-        docker-compose up -d Container nwaku-compose-waku-frontend-1 Container nwaku-compose-prometheus-1 Container nwaku-compose-grafana-1
+        docker-compose up -d
     else
         echo "运行成功！"
     fi
