@@ -81,13 +81,13 @@ fi
 
 # 检查文件是否存在
 if [! -f "$file_key_path" ]; then
-	echo "注册成功！！！"
+	echo "注册失败"
+    	exit 1
+else
+    echo "注册成功！！！"
  	set_port
 	cd nwaku-compose
  	docker-compose up -d
-else
-    echo "注册失败"
-    exit 1
 fi
 }
 
