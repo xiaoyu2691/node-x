@@ -1,0 +1,13 @@
+version: "3.9"
+services:
+  dkn-compute:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: dria-dkn-compute
+    container_name: dkn-compute-container
+    volumes:
+      - /root/dria/dria_conf:/app_conf
+    environment:
+      - DEBIAN_FRONTEND=noninteractive
+    command: bash -c "cp /app_conf/env /app/dkn-compute-node/.env && cd /app/dkn-compute-node && ./dkn-compute-launcher"
