@@ -95,62 +95,58 @@ fi
 function check_and_handle_port_error() {
     error_message="Error response from daemon: driver failed programming external connectivity on endpoint nwaku-compose-nwaku-1"
     if [[ $result == *"$error_message"* ]]; then
-        echo "检测到端口被占用错误，正在修改容器端口..."
-        # 修改nwaku-compose-nwaku-1容器的端口
-        change_port
-        # 启动其他容器
-        cd nwaku-compose
-        docker-compose up -d
+        echo "端口被占用"
+	end
     else
         echo "运行成功！"
     fi
 }
 
 #设置端口
-function change_port() {
+# function change_port() {
 	# 容器名称
-	container_name="Container nwaku-compose-nwaku-1"
+	# container_name="Container nwaku-compose-nwaku-1"
 
 	# 检查8000端口是否被占用
-	is_8000_occupied=$(netstat -tln | grep -c :8000)
-	if [ $is_8000_occupied -gt 0 ]; then
-    	echo "8000端口已被占用，准备更换为8088端口。"
-    	new_port_8000=8088
-	else
-    	new_port_8000=8000
-	fi
+	# is_8000_occupied=$(netstat -tln | grep -c :8000)
+	# if [ $is_8000_occupied -gt 0 ]; then
+    	# echo "8000端口已被占用，准备更换为8088端口。"
+    	# new_port_8000=8088
+	# lse
+    	# new_port_8000=8000
+	# fi
 
 	# 检查80端口是否被占用
-	is_80_occupied=$(netstat -tln | grep -c :80)
-	if [ $is_80_occupied -gt 0 ]; then
-	    echo "80端口已被占用，准备更换为180端口。"
-	    new_port_80=180
-	else
-	    new_port_80=80
-	fi
+	# is_80_occupied=$(netstat -tln | grep -c :80)
+	# if [ $is_80_occupied -gt 0 ]; then
+	    # echo "80端口已被占用，准备更换为180端口。"
+	    # new_port_80=180
+	# else
+	    # new_port_80=80
+	# fi
 	
 	# 检查新端口8088是否被占用
-	is_8088_occupied=$(netstat -tln | grep -c :8088)
-	if [ $is_8088_occupied -gt 0 ]; then
-	    echo "8088端口已被占用，脚本中断。"
-	    exit 1
-	fi
+	# is_8088_occupied=$(netstat -tln | grep -c :8088)
+	# if [ $is_8088_occupied -gt 0 ]; then
+	    # echo "8088端口已被占用，脚本中断。"
+	    # exit 1
+	# fi
 	
 	# 检查新端口180是否被占用
-	is_180_occupied=$(netstat -tln | grep -c :180)
-	if [ $is_180_occupied -gt 0 ]; then
-	    echo "180端口已被占用，脚本中断。"
-	    exit 1
-	fi
+	# is_180_occupied=$(netstat -tln | grep -c :180)
+	# if [ $is_180_occupied -gt 0 ]; then
+	    # echo "180端口已被占用，脚本中断。"
+	    # exit 1
+	# fi
 	
 	# 停止容器
-	docker stop $container_name
+	# docker stop $container_name
 	# 修改容器端口映射
-	docker container update --publish-rm 8000:8000 --publish-rm 80:80 \
-	    --publish-add $new_port_8000:$new_port_8000 --publish-add $new_port_80:$new_port_80 $container_name
-	echo "已根据端口占用情况成功更新容器 $container_name 的端口映射。"
- 	docker-compose up -d
-}
+	# docker container update --publish-rm 8000:8000 --publish-rm 80:80 \
+	    # --publish-add $new_port_8000:$new_port_8000 --publish-add $new_port_80:$new_port_80 $container_name
+	# echo "已根据端口占用情况成功更新容器 $container_name 的端口映射。"
+ 	# docker-compose up -d
+# }
 
 #卸载节点
 function uninstall_node() {
