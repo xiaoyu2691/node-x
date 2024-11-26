@@ -83,8 +83,7 @@ if [! -f "$file_key_path" ]; then
     exit 1
 else
     echo "注册成功！！！"
-    cd nwaku-compose
-    docker-compose up -d
+    docker compose up -d
     sleep 10
     check_and_handle_port_error
 fi
