@@ -250,6 +250,7 @@ case $1 in
     	else
         	autoinstall "$2" "$3" "$4"
     	fi
+     fi
         ;;
     remove)
          uninstall_node
