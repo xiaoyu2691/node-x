@@ -243,7 +243,7 @@ function main_menu() {
 # 脚本入口，根据传入参数执行相应操作
 case $1 in
     install)
-	autoinstall $2 $3 $4
+	autoinstall "$2" "$3" "$4"
         ;;
     remove)
          uninstall_node
