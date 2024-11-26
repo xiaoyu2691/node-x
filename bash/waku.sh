@@ -244,12 +244,12 @@ function main_menu() {
 case $1 in
     install)
         if [ "$1" == "autoinstall" ]; then
-    if [ -z "$2" ] || [ -z "$3" ] || [ -z "$4" ]; then
+    	if [ -z "$2" ] || [ -z "$3" ] || [ -z "$4" ]; then
         echo -e "${RED}使用方法: ./waku.sh autoinstall <获取RPC> <获取私钥> <获取密码>${NC}"
-        exit 1
-    else
-        autoinstall "$2" "$3" "$4"
-    fi
+        	exit 1
+    	else
+        	autoinstall "$2" "$3" "$4"
+    	fi
         ;;
     remove)
          uninstall_node
