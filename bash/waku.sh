@@ -60,7 +60,6 @@ DOMAIN=
 EXTRA_ARGS=
 STORAGE_SIZE=
 EOF
-
 	#生成配置并注册RLN
 	cd nwaku-compose
 	./register_rln.sh
@@ -94,9 +93,9 @@ fi
 # 检查是否出现端口被占用错误并进行处理
 function check_and_handle_port_error() {
     error_message="Error response from daemon: driver failed programming external connectivity on endpoint nwaku-compose-nwaku-1"
-    if [[ $result == *"$error_message"* ]]; then
+    if [[ $result == *"$error_message"* ]]; {
         echo "端口被占用"
-	end
+    end
     else
         echo "运行成功！"
     fi
