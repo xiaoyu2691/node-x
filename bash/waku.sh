@@ -241,14 +241,27 @@ function main_menu() {
 	esac
 }
 # 脚本入口，根据传入参数执行相应操作
-if [ "$1" == "autoinstall" ]; then
+case $1 in
+    install)
+        if [ "$1" == "autoinstall" ]; then
     if [ -z "$2" ] || [ -z "$3" ] || [ -z "$4" ]; then
         echo -e "${RED}使用方法: ./waku.sh autoinstall <获取RPC> <获取私钥> <获取密码>${NC}"
         exit 1
     else
         autoinstall "$2" "$3" "$4"
     fi
-else
-    # 调用主菜单
-    main_menu
-fi
+        ;;
+    remove)
+         uninstall_node
+        ;;
+    logs)
+        cat_logs
+        ;;
+    restart)
+        restart_node
+        ;;
+    *)
+        echo "无效选项。"
+        exit 1
+        ;;
+esac
