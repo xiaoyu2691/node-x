@@ -9,21 +9,21 @@ services:
         cp /config/minato-genesis.json /data/optimism/genesis.json &&
         geth init --state.scheme=hash --datadir=/data/optimism /data/optimism/genesis.json
       fi &&
-      geth --datadir=/data/optimism --http --http.corsdomain=* --http.vhosts=* \
-      --http.addr=0.0.0.0 --http.api=web3,debug,eth,txpool,net,engine --ws \
-      --ws.addr=0.0.0.0 --ws.port=8546 --ws.origins=* --ws.api=debug,eth,txpool,net,engine \
-      --syncmode=full --gcmode=archive --maxpeers=100 --authrpc.vhosts=* \
-      --authrpc.addr=0.0.0.0 --authrpc.port=8551 --authrpc.jwtsecret=/etc/optimism/jwt.txt --metrics \
-      --metrics.addr=0.0.0.0 --metrics.expensive --metrics.port=6060 \
-      --rollup.disabletxpoolgossip=false --rpc.allow-unprotected-txs=true --nat=extip:<your-node-public-ip> --override.fjord=1730106000 --override.granite=1730106000 --override.holocene=1734685200 --db.engine=pebble --state.scheme=hash \
-      --port=30303 \
+      geth --datadir=/data/optimism --http --http.corsdomain=* --http.vhosts=* 
+      --http.addr=0.0.0.0 --http.api=web3,debug,eth,txpool,net,engine --ws 
+      --ws.addr=0.0.0.0 --ws.port=8546 --ws.origins=* --ws.api=debug,eth,txpool,net,engine 
+      --syncmode=full --gcmode=archive --maxpeers=100 --authrpc.vhosts=* 
+      --authrpc.addr=0.0.0.0 --authrpc.port=8551 --authrpc.jwtsecret=/etc/optimism/jwt.txt --metrics 
+      --metrics.addr=0.0.0.0 --metrics.expensive --metrics.port=6060 
+      --rollup.disabletxpoolgossip=false --rpc.allow-unprotected-txs=true --nat=extip:<your-node-public-ip> --override.fjord=1730106000 --override.granite=1730106000 --override.holocene=1734685200 --db.engine=pebble --state.scheme=hash
+      --port=30303 
       --bootnodes=enode://6526c348274c54e7b4184014741897eb25e12ca388f588b0265bb2246caeea87ed5fcb2d55b7b08a90cd271a53bc76decb6d1ec37f219dbe4cd3ed53a888118b@peering-02.prd.hypersonicl2.com:30303,enode://34f172c255b11f64828d73c90a60395691e89782639423d434385594dd38b434ddffb78ad411da6fd37cbda6d0f93e17ceae399ac4f2594b0d54eb8c83c27de9@peering-01.prd.hypersonicl2.com:30303"
     ports:
       - "18551:18551"
       - "6060:6060"
       - "18545:18545"
       - "18546:18546"
-      - "31303:31303"
+      - "31313:31313" 
     volumes:
       - op-geth-storage:/data/optimism
       - ./minato-genesis.json:/config/minato-genesis.json
@@ -56,12 +56,12 @@ services:
       - OP_NODE_OVERRIDE_GRANITE
       - OP_NODE_OVERRIDE_HOLOCENE
     command: >
-      op-node --l1=${L1_URL} --l2=${L2_URL} --rpc.addr=${RPC_ADDR} --rpc.port=${RPC_PORT} \
-      --l2.jwt-secret=${L2_JWT_SECRET} --l1.trustrpc=${L1_TRUST_RPC} --l1.beacon=${L1_BEACON} \
-      --syncmode=${SYNC_MODE} --l1.rpckind=${L1_RPC_KIND} --p2p.static=${OP_NODE_STATIC_PEERS} \
-      --p2p.priv.path=${P2P_PRIV_PATH} --p2p.discovery.path=${P2P_DISCOVERY_PATH} \
-      --p2p.peerstore.path=${P2P_PEERSTORE_PATH} --metrics.enabled=${METRICS_ENABLED} \
-      --p2p.advertise.ip=${P2P_ADVERTISE_IP} --p2p.ban.peers=${OP_NODE_P2P_PEER_BANNING} \
+      op-node --l1=${L1_URL} --l2=${L2_URL} --rpc.addr=${RPC_ADDR} --rpc.port=${RPC_PORT}
+      --l2.jwt-secret=${L2_JWT_SECRET} --l1.trustrpc=${L1_TRUST_RPC} --l1.beacon=${L1_BEACON}
+      --syncmode=${SYNC_MODE} --l1.rpckind=${L1_RPC_KIND} --p2p.static=${OP_NODE_STATIC_PEERS}
+      --p2p.priv.path=${P2P_PRIV_PATH} --p2p.discovery.path=${P2P_DISCOVERY_PATH} 
+      --p2p.peerstore.path=${P2P_PEERSTORE_PATH} --metrics.enabled=${METRICS_ENABLED}
+      --p2p.ban.peers=${OP_NODE_P2P_PEER_BANNING} --p2p.advertise.ip=${P2P_ADVERTISE_IP}
       --metrics.port=${METRICS_PORT} --override.fjord=${OP_NODE_OVERRIDE_FJORD} --override.granite=${OP_NODE_OVERRIDE_GRANITE} --override.holocene=${OP_NODE_OVERRIDE_HOLOCENE} --rollup.config=${ROLLUP_CONFIG}
     ports:
       - "19545:19545"
