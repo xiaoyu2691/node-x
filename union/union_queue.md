@@ -27,6 +27,7 @@
 ![微信截图_20250307122327](https://github.com/user-attachments/assets/8518ee80-c969-455f-96ad-d0f7a16a2a61)
 ![微信截图_20250307122349](https://github.com/user-attachments/assets/6da669a0-1508-4ba2-8d01-8fb54a88de89)
 ![微信截图_20250307122413](https://github.com/user-attachments/assets/99266495-479b-4dc2-aa5b-dd0ec78268ef)
+### 下方的秘钥保存的地址为~/Downloads/
 ![微信截图_20250307122955](https://github.com/user-attachments/assets/b21fffda-7709-42af-b1c9-70b3b072b1ce)
 ![微信截图_20250307123022](https://github.com/user-attachments/assets/bc7589d4-4f28-4d0f-bcc8-38fbcdb79f21)
 ### 在下方输入钱包地址
