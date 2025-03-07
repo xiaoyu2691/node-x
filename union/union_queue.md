@@ -30,6 +30,7 @@
 ![微信截图_20250307122955](https://github.com/user-attachments/assets/b21fffda-7709-42af-b1c9-70b3b072b1ce)
 ![微信截图_20250307123022](https://github.com/user-attachments/assets/bc7589d4-4f28-4d0f-bcc8-38fbcdb79f21)
 ### 在下方输入钱包地址
+![微信截图_20250307123355](https://github.com/user-attachments/assets/b6a406b1-88a5-485e-ae67-26aca9255817)
 ![微信截图_20250307123418](https://github.com/user-attachments/assets/c2023242-2a8b-4b73-9d7f-0a8229236fce)
 ![微信截图_20250307123429](https://github.com/user-attachments/assets/a29623c5-a05a-4869-ac36-9d66698c1db5)
 ![微信截图_20250307132812](https://github.com/user-attachments/assets/25facaa1-26f6-4aaf-a418-05581bf3bf83)
