@@ -8,7 +8,14 @@
 
 ## **以下是 union 排队教程步骤：**  
 
-## 一、进入VNC
+## 一、在NODEHUB中部署
+### 在指令社区中找到union_queue，点击
+![微信截图_20250307153800](https://github.com/user-attachments/assets/cadfa453-1602-4790-9cdf-8b908f65de67)
+### 进入指令执行界面，选择服务器,选择安装，最后点击执行即可，这里可以看到具体指令，大家可以看看，有什么不对的可以在指令下面指出来，万分感谢！
+![微信截图_20250307153825](https://github.com/user-attachments/assets/e57129b9-bc48-4334-8c09-b33f699069fa)
+![微信截图_20250307153842](https://github.com/user-attachments/assets/51a68d50-7596-44a6-b9f4-9feb5315029d)
+
+## 二、进入VNC
 在NODEHUB中部署完成后，根据部署的服务器ip组合一个链接，（http://<ip>:6080/vnc.html）.
 ![微信截图_20250307121411](https://github.com/user-attachments/assets/6b535d45-0ade-4276-b923-2ae2f623dd69)
 在地址栏中输入链接回车后就能看这样的界面，然后点击连接，根据下方提示点击
