@@ -1,8 +1,9 @@
 # UNION QUEUE 操作指南 
-该教程无指令，仅用于NODEHUB部署union_queue完成后的引导排队
+该教程无指令，仅用于NODEHUB部署union_queue完成后引导排队
 
 ## 前期准备
 一个google邮箱
+
 一个cosmos钱包
 
 ## **以下是 union 排队教程步骤：**  
