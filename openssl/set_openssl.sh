@@ -1,140 +1,203 @@
 #!/bin/bash
 
-# 检测操作系统类型
+# 颜色输出定义
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # 无颜色
+
+# 日志函数
+log_info() {
+    echo -e "${GREEN}[INFO]${NC} $1"
+}
+
+log_warning() {
+    echo -e "${YELLOW}[WARNING]${NC} $1"
+}
+
+log_error() {
+    echo -e "${RED}[ERROR]${NC} $1"
+}
+
+# 检测操作系统和包管理器
 detect_os() {
+    local OS
+    local PACKAGE_MANAGER
+
+    # 检测常见的Linux发行版
     if [ -f /etc/os-release ]; then
         . /etc/os-release
-        echo "$ID"
-    elif command -v lsb_release &> /dev/null; then
-        lsb_release -i | cut -d: -f2 | sed -e 's/^[[:space:]]*//'
-    elif [ -f /etc/redhat-release ]; then
-        cat /etc/redhat-release | cut -d' ' -f1
+        OS=$ID
+    elif type lsb_release >/dev/null 2>&1; then
+        OS=$(lsb_release -i | cut -d: -f2 | sed s/'^\t'//)
+    elif [ -f /etc/lsb-release ]; then
+        . /etc/lsb-release
+        OS=$DISTRIB_ID
     else
-        echo "unknown"
+        OS=$(uname -s)
+    fi
+
+    # 转换为小写
+    OS=$(echo "$OS" | tr '[:upper:]' '[:lower:]')
+
+    # 选择包管理器
+    case "$OS" in
+        ubuntu|debian)
+            PACKAGE_MANAGER="apt-get"
+            ;;
+        centos|rhel|fedora)
+            PACKAGE_MANAGER="yum"
+            ;;
+        opensuse*|suse)
+            PACKAGE_MANAGER="zypper"
+            ;;
+        arch|manjaro)
+            PACKAGE_MANAGER="pacman"
+            ;;
+        alpine)
+            PACKAGE_MANAGER="apk"
+            ;;
+        *)
+            log_error "不支持的操作系统: $OS"
+            return 1
+            ;;
+    esac
+
+    echo "$OS $PACKAGE_MANAGER"
+}
+
+# 更全面的 OpenSSL 检查函数
+check_openssl_complete() {
+    # 检查 OpenSSL 命令是否可用
+    if ! command -v openssl &> /dev/null; then
+        return 1
+    fi
+
+    # 全面的库文件和头文件路径
+    local lib_paths=(
+        "/usr/lib/x86_64-linux-gnu/libssl.so"
+        "/usr/lib64/libssl.so"
+        "/usr/lib/libssl.so"
+        "/usr/local/lib/libssl.so"
+        "/opt/local/lib/libssl.so"
+        "/usr/lib/x86_64-linux-musl/libssl.so"
+    )
+
+    local include_paths=(
+        "/usr/include/openssl/ssl.h"
+        "/usr/local/include/openssl/ssl.h"
+        "/opt/local/include/openssl/ssl.h"
+        "/usr/include/x86_64-linux-gnu/openssl/ssl.h"
+        "/usr/include/linux/openssl/ssl.h"
+    )
+
+    local lib_found=false
+    local include_found=false
+
+    # 检查库文件
+    for path in "${lib_paths[@]}"; do
+        if [ -f "$path" ]; then
+            lib_found=true
+            break
+        fi
+    done
+
+    # 检查头文件
+    for path in "${include_paths[@]}"; do
+        if [ -f "$path" ]; then
+            include_found=true
+            break
+        fi
+    done
+
+    # 同时检查库文件和头文件
+    if [ "$lib_found" = true ] && [ "$include_found" = true ]; then
+        return 0
+    else
+        return 1
     fi
 }
 
-# 检查并安装依赖
-install_dependencies() {
-    local os=$(detect_os)
-    echo "检测到操作系统: $os"
-
-    case "$os" in
-        ubuntu|debian)
-            sudo apt-get update
-            sudo apt-get install -y build-essential libssl-dev pkg-config curl
-            ;;
-        centos|rhel|fedora)
-            sudo yum install -y gcc make openssl-devel pkgconfig curl
-            ;;
-        almalinux|rocky)
-            sudo dnf install -y gcc make openssl-devel pkgconfig curl
-            ;;
-        alpine)
-            sudo apk add --no-cache build-base openssl-dev pkgconfig curl
-            ;;
-        *)
-            echo "不支持的操作系统，请手动安装依赖"
-            exit 1
-            ;;
-    esac
-}
-
-# 检查 OpenSSL 是否安装
-check_openssl() {
-    command -v openssl &> /dev/null
-}
-
-# 检查 OpenSSL 开发库
-check_openssl_dev() {
-    local os=$(detect_os)
+# 安装 OpenSSL 的系统特定函数
+install_openssl() {
+    local OS_INFO
+    OS_INFO=$(detect_os)
     
-    case "$os" in
-        ubuntu|debian)
-            [ -f /usr/include/openssl/ssl.h ] && [ -f /usr/lib/x86_64-linux-gnu/libssl.so ]
-            ;;
-        centos|rhel|fedora|almalinux|rocky)
-            [ -f /usr/include/openssl/ssl.h ] && [ -f /usr/lib64/libssl.so ]
-            ;;
-        alpine)
-            [ -f /usr/include/openssl/ssl.h ] && [ -f /usr/lib/libssl.so ]
-            ;;
-        *)
-            false
-            ;;
-    esac
-}
+    if [ $? -ne 0 ]; then
+        log_error "无法识别操作系统，无法自动安装 OpenSSL"
+        return 1
+    fi
 
-# 获取 OpenSSL 库路径
-get_openssl_paths() {
-    local os=$(detect_os)
-    
-    case "$os" in
-        ubuntu|debian)
-            SSL_LIB_PATH=$(find /usr -name "libssl.so*" | grep x86_64-linux-gnu | head -n 1 | xargs dirname)
-            SSL_INCLUDE_PATH=$(find /usr -name "openssl.h" | grep x86_64-linux-gnu | head -n 1 | xargs dirname)
-            PKG_CONFIG_PATH="/usr/lib/x86_64-linux-gnu/pkgconfig"
+    read -r OS PACKAGE_MANAGER <<< "$OS_INFO"
+
+    log_info "检测到操作系统: $OS，使用包管理器: $PACKAGE_MANAGER"
+
+    # 使用 sudo 提权
+    local SUDO
+    SUDO=$(command -v sudo)
+
+    # 不同系统的 OpenSSL 安装命令
+    case "$PACKAGE_MANAGER" in
+        apt-get)
+            $SUDO apt-get update
+            $SUDO apt-get install -y openssl libssl-dev
             ;;
-        centos|rhel|fedora|almalinux|rocky)
-            SSL_LIB_PATH=$(find /usr -name "libssl.so*" | grep lib64 | head -n 1 | xargs dirname)
-            SSL_INCLUDE_PATH=$(find /usr -name "openssl.h" | grep include | head -n 1 | xargs dirname)
-            PKG_CONFIG_PATH="/usr/lib64/pkgconfig"
+        yum)
+            $SUDO yum install -y openssl openssl-devel
             ;;
-        alpine)
-            SSL_LIB_PATH=$(find /usr -name "libssl.so*" | head -n 1 | xargs dirname)
-            SSL_INCLUDE_PATH=$(find /usr -name "openssl.h" | head -n 1 | xargs dirname)
-            PKG_CONFIG_PATH="/usr/lib/pkgconfig"
+        zypper)
+            $SUDO zypper install -y openssl libopenssl-devel
+            ;;
+        pacman)
+            $SUDO pacman -Sy --noconfirm openssl
+            ;;
+        apk)
+            $SUDO apk add openssl openssl-dev
             ;;
         *)
-            echo "无法确定库路径"
-            exit 1
+            log_error "不支持的包管理器: $PACKAGE_MANAGER"
+            return 1
             ;;
     esac
+
+    # 验证安装
+    if [ $? -eq 0 ]; then
+        log_info "OpenSSL 安装成功"
+    else
+        log_error "OpenSSL 安装失败"
+        return 1
+    fi
 }
 
 # 主函数
 main() {
-    # 检查并安装 OpenSSL
-    if ! check_openssl; then
-        echo "OpenSSL 未安装，开始安装..."
-        install_dependencies
+    # 检查是否为 root 或有 sudo 权限
+    if [ "$EUID" -ne 0 ]; then
+        log_warning "建议以 root 权限或使用 sudo 运行此脚本"
     fi
 
-    # 检查开发库
-    if ! check_openssl_dev; then
-        echo "OpenSSL 开发库不完整，正在修复..."
-        install_dependencies
+    # 检查 OpenSSL 是否已经完整安装
+    if check_openssl_complete; then
+        log_info "OpenSSL 已经正确安装，无需重复配置。"
+        log_info "OpenSSL 版本: $(openssl version)"
+        exit 0
     fi
 
-    # 获取 OpenSSL 版本和路径
-    OPENSSL_VERSION=$(openssl version | awk '{print $2}')
-    echo "当前 OpenSSL 版本: $OPENSSL_VERSION"
-
-    # 获取库路径
-    get_openssl_paths
-
-    # 配置环境变量
-    export OPENSSL_LIB_DIR=$SSL_LIB_PATH
-    export OPENSSL_INCLUDE_DIR=$SSL_INCLUDE_PATH
-    export PKG_CONFIG_PATH=$PKG_CONFIG_PATH
-
-    # 更新 ~/.bashrc
-    sed -i '/# OpenSSL Configuration/d' ~/.bashrc
-    sed -i '/OPENSSL_LIB_DIR/d' ~/.bashrc
-    sed -i '/OPENSSL_INCLUDE_DIR/d' ~/.bashrc
-    sed -i '/PKG_CONFIG_PATH/d' ~/.bashrc
-
-    echo "# OpenSSL Configuration" >> ~/.bashrc
-    echo "export OPENSSL_LIB_DIR=$SSL_LIB_PATH" >> ~/.bashrc
-    echo "export OPENSSL_INCLUDE_DIR=$SSL_INCLUDE_PATH" >> ~/.bashrc
-    echo "export PKG_CONFIG_PATH=$PKG_CONFIG_PATH" >> ~/.bashrc
-
-    # 输出配置信息
-    echo "OpenSSL 库路径: $SSL_LIB_PATH"
-    echo "OpenSSL 头文件路径: $SSL_INCLUDE_PATH"
-    echo "Pkg-config 路径: $PKG_CONFIG_PATH"
-
-    echo "OpenSSL 配置完成，请运行 'source ~/.bashrc' 使配置生效"
+    # 尝试安装 OpenSSL
+    if install_openssl; then
+        # 再次验证安装
+        if check_openssl_complete; then
+            log_info "OpenSSL 安装验证成功！"
+            log_info "OpenSSL 版本: $(openssl version)"
+            exit 0
+        else
+            log_error "OpenSSL 安装后验证失败"
+            exit 1
+        fi
+    else
+        log_error "OpenSSL 安装失败"
+        exit 1
+    fi
 }
 
 # 执行主函数
