@@ -63,7 +63,7 @@ NodeHub 是一个为 Web3 项目提供节点部署、运维协作与算力共享
 - 高效运行体验减少技术流失
 - 可绑定激励模型，作为生态增长指标之一
 ## 九、对接联系方式
-Telegram: @Rachelbbb
+Telegram: [@Rachelbbb](https://t.me/Rachelbbb)
 
 邮箱: node-x@node-x.xyz
 
