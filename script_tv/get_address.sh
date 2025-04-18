@@ -13,7 +13,7 @@ echo "正在执行节点检查..."
 PIDS=$(pgrep -u stv)
 if [ -n “$pid” ]; then
 echo "钱包信息："
-run_as_stv stv -a status
+run_as_stv stv -a status | head -n 1
 else
 echo "script is not running"
 fi
