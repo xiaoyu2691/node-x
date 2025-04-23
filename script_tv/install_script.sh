@@ -124,6 +124,8 @@ run_ubuntu_install() {
       echo "MongoDB 安装可能出现问题，请检查日志文件 /var/log/mongodb/mongod.log"
       exit 1
   fi
+
+  
   echo "Starting Ubuntu installation..."
   apt install curl -y
   apt install wget -y
@@ -138,6 +140,7 @@ run_ubuntu_install() {
 
 run_debian_install() {
   local node_private_key=$1
+  
   echo "starting install mongoDB..."
   # 检查是否已安装 MongoDB
   if dpkg -l | grep -q mongodb-org; then
@@ -213,6 +216,8 @@ run_debian_install() {
       echo "MongoDB 安装可能出现问题，请检查日志文件 /var/log/mongodb/mongod.log"
       exit 1
   fi
+
+
   echo "Starting Debian installation..."
   apt install curl -y
   apt install wget -y
