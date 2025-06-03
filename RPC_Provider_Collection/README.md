@@ -22,6 +22,8 @@
   - **团队计划**: $225/月，每日100万次请求，100万次存档请求。
   - **增长计划**: $1000/月，每日500万次请求，500万次存档请求，可加购额外100万次请求（$200/月）。
   - **企业计划**: 定制化，需联系Infura。
+    ![image](https://github.com/user-attachments/assets/0197a432-12c8-46ea-adbc-b4afd65fc687)
+
 - **RPC服务差异**:
   - **支持链**: 10+条链，包括以太坊、Polygon、Optimism、Arbitrum、NEAR、StarkNet等。[](https://github.com/arddluma/awesome-list-rpc-nodes-providers/blob/main/README.md)
   - **特殊功能**: 提供IPFS网关、NFT API+SDK、免费存档数据访问，Web3.js和JSON-RPC实时事件流。
