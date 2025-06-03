@@ -12,8 +12,7 @@ check_execution_sync() {
         "$rpc_url" 2>/dev/null)
     
     if [[ $? -ne 0 ]] || [[ -z "$result" ]]; then
-        echo "执行层RPC连接失败"
-        return 2
+        return 2  # RPC连接失败
     fi
     
     local sync_status=$(echo "$result" | grep -o '"result":[^,}]*' | cut -d':' -f2)
@@ -30,8 +29,7 @@ check_beacon_sync() {
     local result=$(curl -s "$beacon_url/eth/v1/node/syncing" 2>/dev/null)
     
     if [[ $? -ne 0 ]] || [[ -z "$result" ]]; then
-        echo "信标链RPC连接失败"
-        return 2
+        return 2  # RPC连接失败
     fi
     
     local is_syncing=$(echo "$result" | grep -o '"is_syncing":[^,}]*' | cut -d':' -f2)
@@ -44,10 +42,8 @@ check_beacon_sync() {
 
 # 主函数
 main() {
-    local execution_rpc="${1:-http://localhost:8545}"
-    local beacon_rpc="${2:-http://localhost:5052}"
-    
-    echo "检查Sepolia节点同步状态..."
+    local execution_rpc="${1:-$EXECUTION_RPC}"
+    local beacon_rpc="${2:-$BEACON_RPC}"
     
     # 检查执行层同步状态
     check_execution_sync "$execution_rpc"
@@ -59,14 +55,11 @@ main() {
     
     # 判断整体状态
     if [[ $exec_status -eq 2 ]] || [[ $beacon_status -eq 2 ]]; then
-        echo "RPC部署异常：无法连接到节点"
-        exit 1
+        echo "RPC部署异常"
     elif [[ $exec_status -eq 0 ]] && [[ $beacon_status -eq 0 ]]; then
-        echo "RPC部署异常：节点已完全同步"
-        exit 1
+        echo "RPC部署正常，执行层RPC: $execution_rpc，信标链RPC: $beacon_rpc"
     else
-        echo "正在同步中......"
-        exit 0
+        echo "请耐心等待，节点正在同步中....."
     fi
 }
 
