@@ -57,7 +57,11 @@ main() {
     if [[ $exec_status -eq 2 ]] || [[ $beacon_status -eq 2 ]]; then
         echo "RPC部署异常"
     elif [[ $exec_status -eq 0 ]] && [[ $beacon_status -eq 0 ]]; then
-        echo "RPC部署正常，执行层RPC: $execution_rpc，信标链RPC: $beacon_rpc"
+        IP=$(hostname -I | awk '{print $1}')
+        echo "RPC可以正常调用"
+        echo "Sepolia执行层RPC端点: http://$IP:8545"
+        echo "Sepolia执行层WebSocket端点: ws://$IP:8546"
+        echo "Sepolia共识层(Beacon)RPC端点: http://$IP:5052"
     else
         echo "请耐心等待，节点正在同步中....."
     fi
