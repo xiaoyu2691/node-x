@@ -56,6 +56,19 @@ main() {
     # 判断整体状态
     if [[ $exec_status -eq 2 ]] || [[ $beacon_status -eq 2 ]]; then
         echo "RPC部署异常"
+        echo "检查磁盘是否不足"
+        # 获取空闲磁盘空间（以GB为单位）
+        free_space=$(df / | awk 'NR==2 {print $4}')
+        free_space_gb=$((free_space / 1024 / 1024))
+        
+        # 检查空闲磁盘空间
+        if [ "$free_space_gb" -gt 10 ]; then
+            echo "磁盘有剩余，不是磁盘占用完全的原因。"
+        elif [ "$free_space_gb" -lt 1 ]; then
+            echo "磁盘空间已满，无法继续同步，请清理出适合的磁盘空间再重启。"
+        else
+            echo "空闲磁盘空间有剩余，但只有不到10GB，请注意磁盘空间"
+        fi
     elif [[ $exec_status -eq 0 ]] && [[ $beacon_status -eq 0 ]]; then
         IP=$(hostname -I | awk '{print $1}')
         echo "RPC可以正常调用"
