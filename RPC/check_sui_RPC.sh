@@ -6,7 +6,7 @@ test_sui_rpc_health() {
     
     # 如果没有提供 RPC URL，使用默认值
     if [ -z "$rpc_url" ]; then
-        rpc_url="http://localhost:9000"  # 默认使用本地测试网地址，可按需修改
+        rpc_url="http://localhost:9011"  # 默认使用本地测试网地址，可按需修改
     fi
     
     # 发送简单的 RPC 请求检查服务是否正常响应
