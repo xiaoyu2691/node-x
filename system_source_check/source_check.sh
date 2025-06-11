@@ -2,12 +2,16 @@
 
 commands=("sleep" "grep" "tail" "pgrep" "wget" "cat" "curl" "source" "chmod" "gawk" "sysstat")
 
-# 检查并安装命令
 for cmd in "${commands[@]}"; do
     if ! command -v "$cmd" >/dev/null 2>&1; then
         echo -e "\e[33m$cmd 未安装，正在尝试安装...\e[0m"
         sudo apt update
         sudo apt install -y "$cmd"
+        # 再次检查命令是否安装
+        if ! command -v "$cmd" >/dev/null 2>&1; then
+            echo -e "\e[31m警告：$cmd 安装失败，请检查错误信息。\e[0m"
+            exit 1
+        fi
     else
         echo -e "\e[32m$cmd 已安装。\e[0m"
     fi
