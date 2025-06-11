@@ -58,7 +58,8 @@ if [ "$idle_cpus_count" -lt "$cpu_threshold" ]; then
     else
         echo -e "\e[31m警告：空闲CPU数量不足，节点可能安装失败，请注意系统资源分配！\e[0m"
     fi
-    
+else
+    echo "当前空闲CPU:$idle_cpus_count"
 fi
 
 # 显示内存使用情况
@@ -74,6 +75,8 @@ if [ "$free_ram" -lt "$ram_threshold" ]; then
     else
         echo -e "\e[31m警告：空闲RAM不足,节点可能安装失败，请注意系统资源分配！\e[0m"
     fi
+else
+    echo "当前空闲内存:$free_ram"
 fi
 
 # 显示磁盘使用情况
@@ -89,4 +92,6 @@ if [ "$free_rom" -lt "$rom_threshold" ]; then
         echo -e "\e[31m警告：服务器磁盘空间不足，部署该节点最低磁盘为 $rom_threshold G\e[0m"
     fi
     exit 1
+else
+    echo "当前空闲磁盘大小：free_rom"
 fi
