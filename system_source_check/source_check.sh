@@ -93,5 +93,5 @@ if [ "$free_rom" -lt "$rom_threshold" ]; then
     fi
     exit 1
 else
-    echo "当前空闲磁盘大小：free_rom"
+    echo "当前空闲磁盘大小：$free_rom"
 fi
