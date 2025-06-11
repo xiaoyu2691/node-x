@@ -1,6 +1,6 @@
 #!/bin/bash
 
-commands=("sleep" "grep" "tail" "pgrep" "wget" "cat" "curl" "source" "chmod" "gawk" "sysstat")
+commands=("sleep" "grep" "tail" "pgrep" "wget" "cat" "curl" "source" "chmod" "gawk")
 
 for cmd in "${commands[@]}"; do
     if ! command -v "$cmd" >/dev/null 2>&1; then
