@@ -8,8 +8,6 @@ for cmd in "${commands[@]}"; do
         echo -e "\e[33m$cmd 未安装，正在尝试安装...\e[0m"
         sudo apt update
         sudo apt install -y "$cmd"
-    else
-        echo -e "\e[32m$cmd 已安装。\e[0m"
     fi
 done
 
