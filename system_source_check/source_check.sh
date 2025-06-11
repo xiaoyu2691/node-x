@@ -72,10 +72,10 @@ free_ram_gb=$(echo "scale=2; $free_ram / 1024 / 1024" | bc) # 转换为GB
 if [ "$(echo "$free_ram_gb < $ram_threshold" | bc)" -eq 1 ]; then
     if [ "$(echo "$free_ram_gb == 0" | bc)" -eq 1 ]; then
         echo -e "\e[31m警告：内存资源已经占用完全，没有空闲资源，目前资源为 $ram_threshold GB\e[0m"
+        exit 1
     else
-        echo -e "\e[31m警告：空闲RAM不足\e[0m"
+        echo -e "\e[31m警告：空闲RAM不足，节点可能会部署失败，请注意资源分配！\e[0m"
     fi
-    exit 1
 fi
 
 # 显示磁盘使用情况
