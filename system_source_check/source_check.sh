@@ -43,24 +43,6 @@ done
 # 打印系统资源检查报告
 echo -e "\n\e[34m======系统资源检查报告 $(date)======\e[0m"
 
-# 显示内存使用情况
-echo -e "\n\e[36m===内存使用情况===\e[0m"
-memory_info=$(free -h | awk 'NR==2 {print "已使用: "$3", 空闲: "$7}')
-echo -e "\e[37m$memory_info\e[0m"
-free_ram=$(free | awk 'NR==2 {print $7}') # 获取空闲内存大小
-
-# 显示磁盘使用情况
-echo -e "\n\e[36m===磁盘使用情况===\e[0m"
-disk_info=$(df -h / | awk 'NR==2 {print "已使用: "$3", 空闲: "$4}')
-echo -e "\e[37m$disk_info\e[0m"
-free_rom=$(df / | awk 'NR==2 {print $4}' | sed 's/G//') # 获取空闲磁盘大小（单位为G）
-
-# 检查空余磁盘是否小于阈值
-if [ "$free_rom" -lt "$rom_threshold" ]; then
-    echo -e "\e[31m警告：服务器磁盘空间不足，部署该节点最低磁盘为 $rom_threshold G\e[0m"
-    exit 1
-fi
-
 # 显示CPU利用率及数量
 echo -e "\n\e[36m===CPU利用率===\e[0m"
 cpu_info=$(mpstat 1 1 | grep "Average" | awk '{printf "CPU利用率: %.2f%%", 100 - $12}')
@@ -68,7 +50,6 @@ cpu_count=$(nproc)
 idle_cpus=$(mpstat 1 1 | grep "Average" | awk '{print $12}')
 idle_cpus_count=$(echo "$idle_cpus * $cpu_count / 100" | bc)
 echo -e "\e[37m${cpu_info}, CPU数量: $cpu_count, 空闲CPU数量: $idle_cpus_count\e[0m"
-
 # 检查空闲CPU数量
 if [ "$idle_cpus_count" -lt "$cpu_threshold" ]; then
     if [ "$idle_cpus_count" -eq 0 ]; then
@@ -80,6 +61,11 @@ if [ "$idle_cpus_count" -lt "$cpu_threshold" ]; then
     
 fi
 
+# 显示内存使用情况
+echo -e "\n\e[36m===内存使用情况===\e[0m"
+memory_info=$(free -h | awk 'NR==2 {print "已使用: "$3", 空闲: "$7}')
+echo -e "\e[37m$memory_info\e[0m"
+free_ram=$(free | awk 'NR==2 {print $7}') # 获取空闲内存大小
 # 检查空闲内存是否小于阈值
 if [ "$free_ram" -lt "$ram_threshold" ]; then
     if [ "$free_ram" -eq 0 ]; then
@@ -88,4 +74,19 @@ if [ "$free_ram" -lt "$ram_threshold" ]; then
     else
         echo -e "\e[31m警告：空闲RAM不足,节点可能安装失败，请注意系统资源分配！\e[0m"
     fi
+fi
+
+# 显示磁盘使用情况
+echo -e "\n\e[36m===磁盘使用情况===\e[0m"
+disk_info=$(df -h / | awk 'NR==2 {print "已使用: "$3", 空闲: "$4}')
+echo -e "\e[37m$disk_info\e[0m"
+free_rom=$(df / | awk 'NR==2 {print $4}' | sed 's/G//') # 获取空闲磁盘大小（单位为G）
+
+if [ "$free_rom" -lt "$rom_threshold" ]; then
+    if [ "$free_rom" -eq 0 ]; then
+        echo -e "\e[31m警告：磁盘空间已经占用完全，没有空闲资源，目前资源为 $rom_threshold G\e[0m"
+    else
+        echo -e "\e[31m警告：服务器磁盘空间不足，部署该节点最低磁盘为 $rom_threshold G\e[0m"
+    fi
+    exit 1
 fi
