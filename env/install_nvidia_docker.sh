@@ -129,48 +129,42 @@ detect_system() {
     log_success "检测到架构: $ARCH"
 }
 
-
-# 检查显卡信息
+# 检测显卡信息
 detect_gpu() {
     log_info "检测显卡信息..."
     
-    # 检查传入的 select 值
-    if [[ $1 == true ]]; then
-        # 检测NVIDIA显卡
-        if command -v lspci >/dev/null 2>&1; then
-            NVIDIA_GPUS=$(lspci | grep -i nvidia | grep -i vga)
-            if [[ -n "$NVIDIA_GPUS" ]]; then
-                HAS_NVIDIA=true
-                log_success "检测到NVIDIA显卡:"
-                echo "$NVIDIA_GPUS" | while read line; do
-                    echo "  $line"
-                done
-                
-                # 获取显卡型号
-                GPU_MODEL=$(echo "$NVIDIA_GPUS" | head -1 | sed 's/.*NVIDIA Corporation //' | sed 's/ \[.*\]//')
-                log_info "主显卡型号: $GPU_MODEL"
-            else
-                HAS_NVIDIA=false
-                log_info "未检测到NVIDIA显卡"
-            fi
+    # 检测NVIDIA显卡
+    if command -v lspci >/dev/null 2>&1; then
+        NVIDIA_GPUS=$(lspci | grep -i nvidia | grep -i vga)
+        if [[ -n "$NVIDIA_GPUS" ]]; then
+            HAS_NVIDIA=true
+            log_success "检测到NVIDIA显卡:"
+            echo "$NVIDIA_GPUS" | while read line; do
+                echo "  $line"
+            done
+            
+            # 获取显卡型号
+            GPU_MODEL=$(echo "$NVIDIA_GPUS" | head -1 | sed 's/.*NVIDIA Corporation //' | sed 's/ \[.*\]//')
+            log_info "主显卡型号: $GPU_MODEL"
         else
-            log_warning "lspci命令不可用，无法检测显卡"
             HAS_NVIDIA=false
-        fi
-        
-        # 检测当前NVIDIA驱动
-        if command -v nvidia-smi >/dev/null 2>&1; then
-            NVIDIA_DRIVER_VERSION=$(nvidia-smi --query-gpu=driver_version --format=csv,noheader,nounits | head -1)
-            CUDA_VERSION=$(nvidia-smi --query-gpu=cuda_version --format=csv,noheader,nounits | head -1)
-            log_success "检测到NVIDIA驱动版本: $NVIDIA_DRIVER_VERSION"
-            log_success "检测到CUDA版本: $CUDA_VERSION"
-            HAS_NVIDIA_DRIVER=true
-        else
-            log_info "未检测到NVIDIA驱动"
-            HAS_NVIDIA_DRIVER=false
+            log_info "未检测到NVIDIA显卡"
         fi
     else
-        log_info "传入的 select 值为 false，跳过显卡检查和安装."
+        log_warning "lspci命令不可用，无法检测显卡"
+        HAS_NVIDIA=false
+    fi
+    
+    # 检测当前NVIDIA驱动
+    if command -v nvidia-smi >/dev/null 2>&1; then
+        NVIDIA_DRIVER_VERSION=$(nvidia-smi --query-gpu=driver_version --format=csv,noheader,nounits | head -1)
+        CUDA_VERSION=$(nvidia-smi --query-gpu=cuda_version --format=csv,noheader,nounits | head -1)
+        log_success "检测到NVIDIA驱动版本: $NVIDIA_DRIVER_VERSION"
+        log_success "检测到CUDA版本: $CUDA_VERSION"
+        HAS_NVIDIA_DRIVER=true
+    else
+        log_info "未检测到NVIDIA驱动"
+        HAS_NVIDIA_DRIVER=false
     fi
 }
 
@@ -295,6 +289,65 @@ EOF
     log_success "NVIDIA Docker支持安装完成"
 }
 
+# 测试安装
+test_installation() {
+    log_info "测试Docker安装..."
+    
+    # 测试Docker
+    if docker run --rm hello-world >/dev/null 2>&1; then
+        log_success "Docker测试通过"
+    else
+        log_error "Docker测试失败"
+    fi
+    
+    # 测试NVIDIA Docker（如果安装了）
+    if [[ "$HAS_NVIDIA" == "true" && "$HAS_NVIDIA_DRIVER" == "true" ]]; then
+        log_info "测试NVIDIA Docker..."
+        if docker run --rm --gpus all nvidia/cuda:11.8-base-ubuntu20.04 nvidia-smi >/dev/null 2>&1; then
+            log_success "NVIDIA Docker测试通过"
+        else
+            log_warning "NVIDIA Docker测试失败，可能需要重启系统"
+        fi
+    fi
+}
+
+# 显示安装完成信息
+show_completion_info() {
+    log_success "Docker安装脚本执行完成！"
+    echo ""
+    echo "安装信息:"
+    echo "=========================================="
+    echo "操作系统: $PRETTY_NAME"
+    echo "架构: $ARCH"
+    echo "Docker版本: $(docker --version)"
+    
+    if [[ "$HAS_NVIDIA" == "true" ]]; then
+        echo "显卡支持: 已启用NVIDIA支持"
+        if [[ "$HAS_NVIDIA_DRIVER" == "true" ]]; then
+            echo "NVIDIA驱动: $NVIDIA_DRIVER_VERSION"
+            echo "CUDA版本: $CUDA_VERSION"
+        fi
+    else
+        echo "显卡支持: 无NVIDIA显卡"
+    fi
+    
+    echo "=========================================="
+    echo ""
+    echo "使用说明:"
+    echo "1. 运行Docker容器: docker run hello-world"
+    if [[ "$HAS_NVIDIA" == "true" ]]; then
+        echo "2. 运行GPU容器: docker run --gpus all nvidia/cuda:11.8-base-ubuntu20.04 nvidia-smi"
+    fi
+    echo "3. 查看Docker状态: systemctl status docker"
+    echo "4. 查看Docker日志: journalctl -u docker"
+    echo ""
+    
+    if [[ "$HAS_NVIDIA" == "true" && "$HAS_NVIDIA_DRIVER" != "true" ]]; then
+        log_warning "检测到NVIDIA显卡但未安装驱动，已安装驱动但需要重启系统"
+        log_warning "请运行 'sudo reboot' 重启后重新运行脚本完成NVIDIA支持安装"
+    fi
+}
+
 # 国内服务器安装docker
 function domestic_docker_install() {
   log_info "开始安装docker......."
@@ -323,7 +376,7 @@ function domestic_docker_install() {
 
   # 配置Docker使用阿里云镜像加速器
     mkdir -p /etc/docker
-    cat > /etc/docker/daemon.json << EOF
+    cat > /etc/docker/daemon.json << JEOF
 {
     "registry-mirrors": [
     "https://docker.1panel.live/",
@@ -341,22 +394,18 @@ function domestic_docker_install() {
         "max-file": "3"
     }
 }
-EOF
+JEOF
     
     # 重启Docker服务
     systemctl restart docker
     
     log_success "Docker安装完成"
     docker --version
-  
 
-  if [[ $1 == true ]]; then
     log_info "开始安装nvidia docker"
     install_nvidia_docker
-  else
-    log_info "不安装Nvidia docker"
-    
-  fi
+    test_installation
+    show_completion_info
 }
 
 
@@ -380,29 +429,18 @@ function foreign_docker_install() {
   else
       log_info "Docker 已安装，跳过安装。"
   fi
-  
-  # 检查服务器是否存在显卡
-  GPU=$(lspci | grep -i nvidia | awk -F ': ' '{print $2}' | head -n 1)
 
-  if [ -z "$GPU" ]; then
-      log_info "当前服务器未安装显卡"
-  else
-      log_info "显卡型号：$GPU"
-      if command -v nvidia-smi &> /dev/null; then
-          DRIVER_VERSION=$(nvidia-smi | grep "Driver Version" | awk '{print $3}')
-          log_info "已安装驱动，驱动版本：$DRIVER_VERSION"
-      else
-          log_warning "NVIDIA 驱动未安装"
-      fi
-  fi
+  log_info "开始安装nvidia docker"
+  install_nvidia_docker
+  test_installation
+  show_completion_info
 }
 
-# 
-
-
+sudo apt update
+sudo apt install -y curl jq
 
 # 获取本地IP地址
-IP_ADDRESS=$(hostname -I | awk '{print $1}')
+IP_ADDRESS=$(curl -s http://ipinfo.io/ip)
 # 获取IP地址的地理位置
 LOCATION=$(curl -s "http://ip-api.com/json/$IP_ADDRESS" | jq -r '.country')
 
