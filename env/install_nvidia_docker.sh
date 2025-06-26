@@ -22,21 +22,69 @@ log_error() {
     echo -e "${RED}[ERROR]${NC} $1"
 }
 
+# 检查系统信息
+detect_system() {
+    log_info "检测系统信息..."
+    
+    # 检测操作系统
+    if [[ -f /etc/os-release ]]; then
+        . /etc/os-release
+        OS=$ID
+        VER=$VERSION_ID
+        CODENAME=$VERSION_CODENAME
+    else
+        log_error "无法检测操作系统"
+        exit 1
+    fi
+    
+    log_success "检测到系统: $PRETTY_NAME"
+    
+    # 检测架构
+    ARCH=$(uname -m)
+    case $ARCH in
+        x86_64)
+            ARCH="amd64"
+            ;;
+        aarch64)
+            ARCH="arm64"
+            ;;
+        armv7l)
+            ARCH="armhf"
+            ;;
+        *)
+            log_error "不支持的架构: $ARCH"
+            exit 1
+            ;;
+    esac
+    
+    log_success "检测到架构: $ARCH"
+}
+
 # 更新系统包
 update_system() {
     log_info "更新系统包..."
     
-    apt-get update
-    apt-get install -y \
-        apt-transport-https \
-        ca-certificates \
-        curl \
-        gnupg \
-        lsb-release \
-        software-properties-common \
-        wget \
+    # 更新软件包列表
+    DEBIAN_FRONTEND=noninteractive sudo apt-get update
+
+    # 定义需要安装的软件包
+    packages=(
+        apt-transport-https
+        ca-certificates
+        curl
+        gnupg
+        lsb-release
+        software-properties-common
+        wget
         unzip
-    
+    )
+
+    # 检查并安装未安装的软件包
+    for package in "${packages[@]}"; do
+        if ! dpkg -l | grep -q "$package"; then
+            DEBIAN_FRONTEND=noninteractive sudo apt-get install -y "$package"
+        fi
+    done
     log_success "系统包更新完成"
 }
 
@@ -92,43 +140,6 @@ DEBIANEOF
     log_success "已配置阿里云APT镜像源"
 }
 
-detect_system() {
-    log_info "检测系统信息..."
-    
-    # 检测操作系统
-    if [[ -f /etc/os-release ]]; then
-        . /etc/os-release
-        OS=$ID
-        VER=$VERSION_ID
-        CODENAME=$VERSION_CODENAME
-    else
-        log_error "无法检测操作系统"
-        exit 1
-    fi
-    
-    log_success "检测到系统: $PRETTY_NAME"
-    
-    # 检测架构
-    ARCH=$(uname -m)
-    case $ARCH in
-        x86_64)
-            ARCH="amd64"
-            ;;
-        aarch64)
-            ARCH="arm64"
-            ;;
-        armv7l)
-            ARCH="armhf"
-            ;;
-        *)
-            log_error "不支持的架构: $ARCH"
-            exit 1
-            ;;
-    esac
-    
-    log_success "检测到架构: $ARCH"
-}
-
 # 检测显卡信息
 detect_gpu() {
     log_info "检测显卡信息..."
@@ -158,7 +169,7 @@ detect_gpu() {
     # 检测当前NVIDIA驱动
     if command -v nvidia-smi >/dev/null 2>&1; then
         NVIDIA_DRIVER_VERSION=$(nvidia-smi --query-gpu=driver_version --format=csv,noheader,nounits | head -1)
-        CUDA_VERSION=$(nvidia-smi --query-gpu=cuda_version --format=csv,noheader,nounits | head -1)
+        CUDA_VERSION=$(nvidia-smi | grep -oP 'CUDA Version: \K[0-9.]+')
         log_success "检测到NVIDIA驱动版本: $NVIDIA_DRIVER_VERSION"
         log_success "检测到CUDA版本: $CUDA_VERSION"
         HAS_NVIDIA_DRIVER=true
@@ -202,15 +213,14 @@ install_nvidia_docker() {
     fi
     
     # 添加NVIDIA Container Toolkit仓库
-    curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg
-    curl -s -L https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list | \
-        sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' | \
-        tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
-    
+    curl -fsSL https://mirrors.ustc.edu.cn/libnvidia-container/gpgkey | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg  --yes
+    echo -e "deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://mirrors.ustc.edu.cn/libnvidia-container/stable/deb/\$(ARCH) /\n#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://mirrors.ustc.edu.cn/libnvidia-container/experimental/deb/\$(ARCH) /" | sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
+
     apt-get update
     
     # 安装NVIDIA Container Toolkit
-    apt-get install -y nvidia-container-toolkit nvidia-container-runtime
+    DEBIAN_FRONTEND=noninteractive sudo apt-get install -y nvidia-container-toolkit nvidia-container-runtime
+    DEBIAN_FRONTEND=noninteractive sudo apt install -y nvidia-cuda-toolkit
     
     # 配置Docker使用NVIDIA运行时
     nvidia-ctk runtime configure --runtime=docker
@@ -220,18 +230,21 @@ install_nvidia_docker() {
         # 备份现有配置
         cp /etc/docker/daemon.json /etc/docker/daemon.json.backup
         
-        # 使用jq更新配置（如果没有jq则手动处理）
-        if command -v jq >/dev/null 2>&1; then
-            jq '. + {"default-runtime": "nvidia", "runtimes": {"nvidia": {"path": "nvidia-container-runtime", "runtimeArgs": []}}}' /etc/docker/daemon.json > /tmp/daemon.json
-            mv /tmp/daemon.json /etc/docker/daemon.json
-        else
-            # 手动更新配置
-            cat > /etc/docker/daemon.json << EOF
+        # 手动更新配置
+        cat > /etc/docker/daemon.json << EOF
 {
     "registry-mirrors": [
         "https://registry.cn-hangzhou.aliyuncs.com",
         "https://mirror.ccs.tencentyun.com",
-        "https://reg-mirror.qiniu.com"
+        "https://reg-mirror.qiniu.com",
+        "https://docker.1panel.live/",
+        "https://docker.1ms.run/",
+        "https://dytt.online",
+        "https://lispy.org",
+        "docker.xiaogenban1993.com",
+        "https://docker-0.unsee.tech",
+        "666860.xyz",
+        "https://docker.m.daocloud.io"
     ],
     "log-driver": "json-file",
     "log-opts": {
@@ -247,7 +260,6 @@ install_nvidia_docker() {
     }
 }
 EOF
-        fi
     fi
     
     # 重启Docker服务
@@ -350,42 +362,41 @@ show_completion_info() {
 
 # 国内服务器安装docker
 function domestic_docker_install() {
-  log_info "检测为国内IP,开始安装docker......."
+    log_info "开始安装docker......."
   
-  log_info "使用aliyu镜像源进行安装"
-  detect_system
-  update_system
-  configure_apt_sources
+    log_info "使用aliyu镜像源进行安装"
+    detect_system
+    update_system
+    configure_apt_sources
   
-  apt-get remove -y docker docker-engine docker.io containerd runc 2>/dev/null || true
-  # 添加Docker GPG密钥
-  curl -fsSL https://mirrors.aliyun.com/docker-ce/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+    apt-get remove -y docker docker-engine docker.io containerd runc 2>/dev/null || true
+    # 添加Docker GPG密钥
+    curl -fsSL https://mirrors.aliyun.com/docker-ce/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg --yes
     
-  # 添加Docker仓库
-  echo "deb [arch=$ARCH signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://mirrors.aliyun.com/docker-ce/linux/ubuntu $CODENAME stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
+    # 添加Docker仓库
+    echo "deb [arch=$ARCH signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://mirrors.aliyun.com/docker-ce/linux/ubuntu $CODENAME stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
     
-  apt-get update
+    sudo apt-get update
 
-  # 安装Docker
-  apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-  # 启动Docker服务
-  sudo systemctl start docker
-  sudo systemctl enable docker
-  sudo systemctl status docker
+    # 安装Docker
+    apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+    # 启动Docker服务
+    sudo systemctl start docker
+    sudo systemctl enable docker
 
-  # 配置Docker使用阿里云镜像加速器
+    # 配置Docker使用阿里云镜像加速器
     mkdir -p /etc/docker
     cat > /etc/docker/daemon.json << JEOF
 {
     "registry-mirrors": [
-    "https://docker.1panel.live/",
-    "https://docker.1ms.run/",
-    "https://dytt.online",
-	  "https://lispy.org",
-	  "docker.xiaogenban1993.com",
-	  "https://docker-0.unsee.tech",
-	  "666860.xyz",
-	  "https://docker.m.daocloud.io"
+        "https://docker.1panel.live/",
+        "https://docker.1ms.run/",
+        "https://dytt.online",
+        "https://lispy.org",
+        "docker.xiaogenban1993.com",
+        "https://docker-0.unsee.tech",
+        "666860.xyz",
+        "https://docker.m.daocloud.io"
     ],
     "log-driver": "json-file",
     "log-opts": {
@@ -396,7 +407,7 @@ function domestic_docker_install() {
 JEOF
     
     # 重启Docker服务
-    systemctl restart docker
+    sudo systemctl restart docker
     
     log_success "Docker安装完成"
     docker --version
@@ -408,48 +419,70 @@ JEOF
     show_completion_info
 }
 
-
 # 国外服务器安装docker
 function foreign_docker_install() {
-  log_info "检查系统信息及升级部分系统包"
-  update_system
-  detect_system
+    log_info "开始安装docker......"
+    log_info "检查系统信息及升级部分系统包"
+    update_system
+    detect_system
 
+    log_info "开始安装docker......."
+    # 检查是否安装docker
+    if ! command -v docker &> /dev/null; then
+        log_info "Docker 未安装，正在安装 Docker..."
+        
+        # 安装 Docker
+        curl -fsSL https://get.docker.com -o get-docker.sh
+        sh get-docker.sh
   
-  log_info "开始安装docker......."
-  # 检查是否安装docker
-  if ! command -v docker &> /dev/null; then
-      log_info "Docker 未安装，正在安装 Docker..."
-      
-      # 安装 Docker
-      curl -fsSL https://get.docker.com -o get-docker.sh
-      sh get-docker.sh
-  
-      log_success "Docker 安装完成！"
-  else
-      log_info "Docker 已安装，跳过安装。"
-  fi
+        log_success "Docker 安装完成！"
+    else
+        log_info "Docker 已安装，跳过安装。"
+    fi
 
-  log_info "开始安装nvidia docker"
-  detect_gpu
-  install_nvidia_docker
-  test_installation
-  show_completion_info
+    log_info "开始安装nvidia docker"
+    detect_gpu
+    install_nvidia_docker
+    test_installation
+    show_completion_info
 }
 
 sudo apt update
-sudo apt install -y curl snapd
-sudo snapd install jq
 
+# 检查并安装 curl
 if ! command -v curl &> /dev/null; then
-    log_error "curl 安装出错，脚本退出。"
-    exit 1
+    log_info "curl 未安装，正在安装..."
+    sudo apt install -y curl
+    if ! command -v curl &> /dev/null; then
+        log_error "curl 安装出错，脚本退出。"
+        exit 1
+    fi
+else
+    log_info "curl 已安装。"
 fi
 
-# 检查是否安装 jq
+# 检查并安装 snapd
+if ! command -v snap &> /dev/null; then
+    log_info "snapd 未安装，正在安装..."
+    sudo apt install -y snapd
+    if ! command -v snap &> /dev/null; then
+        log_error "snapd 安装出错，脚本退出。"
+        exit 1
+    fi
+else
+    log_info "snapd 已安装。"
+fi
+
+# 检查并安装 jq
 if ! command -v jq &> /dev/null; then
-    log_error "jq 安装出错，脚本退出。"
-    exit 1
+    log_info "jq 未安装，正在安装..."
+    sudo snap install jq
+    if ! command -v jq &> /dev/null; then
+        log_error "jq 安装出错，脚本退出。"
+        exit 1
+    fi
+else
+    log_info "jq 已安装。"
 fi
 
 # 获取本地IP地址
@@ -458,9 +491,9 @@ IP_ADDRESS=$(curl -s http://ipinfo.io/ip)
 LOCATION=$(curl -s "http://ip-api.com/json/$IP_ADDRESS" | jq -r '.country')
 
 if [ "$LOCATION" == "China" ]; then
-    log_info "国内IP"
+    log_info "检测为国内IP"
     domestic_docker_install
 else
-    log_info "国外IP"
+    log_info "检测为国外IP"
     foreign_docker_install
 fi
