@@ -350,13 +350,12 @@ show_completion_info() {
 
 # 国内服务器安装docker
 function domestic_docker_install() {
-  log_info "开始安装docker......."
+  log_info "检测为国内IP,开始安装docker......."
   
   log_info "使用aliyu镜像源进行安装"
   detect_system
   update_system
   configure_apt_sources
-  detect_gpu
   
   apt-get remove -y docker docker-engine docker.io containerd runc 2>/dev/null || true
   # 添加Docker GPG密钥
@@ -403,6 +402,7 @@ JEOF
     docker --version
 
     log_info "开始安装nvidia docker"
+    detect_gpu
     install_nvidia_docker
     test_installation
     show_completion_info
@@ -431,6 +431,7 @@ function foreign_docker_install() {
   fi
 
   log_info "开始安装nvidia docker"
+  detect_gpu
   install_nvidia_docker
   test_installation
   show_completion_info
