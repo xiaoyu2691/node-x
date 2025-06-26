@@ -438,7 +438,19 @@ function foreign_docker_install() {
 }
 
 sudo apt update
-sudo apt install -y curl jq
+sudo apt install -y curl snapd
+sudo snapd install jq
+
+if ! command -v curl &> /dev/null; then
+    log_error "curl 安装出错，脚本退出。"
+    exit 1
+fi
+
+# 检查是否安装 jq
+if ! command -v jq &> /dev/null; then
+    log_error "jq 安装出错，脚本退出。"
+    exit 1
+fi
 
 # 获取本地IP地址
 IP_ADDRESS=$(curl -s http://ipinfo.io/ip)
@@ -446,9 +458,9 @@ IP_ADDRESS=$(curl -s http://ipinfo.io/ip)
 LOCATION=$(curl -s "http://ip-api.com/json/$IP_ADDRESS" | jq -r '.country')
 
 if [ "$LOCATION" == "China" ]; then
-    echo "国内IP"
+    log_info "国内IP"
     domestic_docker_install
 else
-    echo "国外IP"
+    log_info "国外IP"
     foreign_docker_install
 fi
