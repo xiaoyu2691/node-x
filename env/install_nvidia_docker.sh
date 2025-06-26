@@ -194,16 +194,16 @@ install_nvidia_docker() {
         
         # 添加NVIDIA驱动PPA
         add-apt-repository -y ppa:graphics-drivers/ppa
-        apt-get update
+        sudo apt-get update
         
         # 自动检测推荐驱动
         RECOMMENDED_DRIVER=$(ubuntu-drivers devices | grep recommended | awk '{print $3}' | head -1)
         if [[ -n "$RECOMMENDED_DRIVER" ]]; then
             log_info "安装推荐驱动: $RECOMMENDED_DRIVER"
-            apt-get install -y "$RECOMMENDED_DRIVER"
+            sudo apt-get install -y "$RECOMMENDED_DRIVER"
         else
             log_info "安装最新稳定版驱动"
-            apt-get install -y nvidia-driver-535
+            sudo apt-get install -y nvidia-driver-535
         fi
         
         log_warning "NVIDIA驱动安装完成，需要重启系统后才能继续安装NVIDIA Docker"
@@ -216,7 +216,7 @@ install_nvidia_docker() {
     curl -fsSL https://mirrors.ustc.edu.cn/libnvidia-container/gpgkey | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg  --yes
     echo -e "deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://mirrors.ustc.edu.cn/libnvidia-container/stable/deb/\$(ARCH) /\n#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://mirrors.ustc.edu.cn/libnvidia-container/experimental/deb/\$(ARCH) /" | sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
 
-    apt-get update
+    sudo apt-get update
     
     # 安装NVIDIA Container Toolkit
     DEBIAN_FRONTEND=noninteractive sudo apt-get install -y nvidia-container-toolkit nvidia-container-runtime
@@ -239,12 +239,7 @@ install_nvidia_docker() {
         "https://reg-mirror.qiniu.com",
         "https://docker.1panel.live/",
         "https://docker.1ms.run/",
-        "https://dytt.online",
-        "https://lispy.org",
-        "docker.xiaogenban1993.com",
-        "https://docker-0.unsee.tech",
-        "666860.xyz",
-        "https://docker.m.daocloud.io"
+        "https://dytt.online"
     ],
     "log-driver": "json-file",
     "log-opts": {
@@ -304,6 +299,8 @@ EOF
 # 测试安装
 test_installation() {
     log_info "测试Docker安装..."
+        
+
     
     # 测试Docker
     if docker run --rm hello-world >/dev/null 2>&1; then
