@@ -446,7 +446,9 @@ IP_ADDRESS=$(curl -s http://ipinfo.io/ip)
 LOCATION=$(curl -s "http://ip-api.com/json/$IP_ADDRESS" | jq -r '.country')
 
 if [ "$LOCATION" == "China" ]; then
+    echo "国内IP"
     domestic_docker_install
 else
+    echo "国外IP"
     foreign_docker_install
 fi
