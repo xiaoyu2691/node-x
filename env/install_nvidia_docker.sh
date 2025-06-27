@@ -77,6 +77,8 @@ update_system() {
         software-properties-common
         wget
         unzip
+        inxi
+        alsa-utils
     )
 
     # 检查并安装未安装的软件包
@@ -179,6 +181,54 @@ detect_gpu() {
     fi
 }
 
+install_Driver() {
+	log_info "安装NVIDIA驱动..."
+        
+        # 添加NVIDIA驱动PPA
+        add-apt-repository -y ppa:graphics-drivers/ppa
+        sudo apt-get update
+        
+	# 检查是否安装 NVIDIA 驱动
+	HAS_NVIDIA_DRIVER=$(dpkg -l | grep -i nvidia-driver)
+
+	# 获取当前显卡型号
+	GPU_MODEL=$(inxi -G | grep -i nvidia | awk -F '[[]|]' '{print $2}' | sed 's/.* //')
+        # 自动检测推荐驱动
+    	RECOMMENDED_DRIVER=$(ubuntu-drivers devices | grep recommended | awk '{print $3}' | head -1)
+
+    	# 根据显卡型号选择适配的驱动
+    	case "$GPU_MODEL" in
+        "3070")
+            	DRIVER=$(ubuntu-drivers devices | grep -i "nvidia-driver-3" | awk '{print $3}' | head -1)
+		echo "$DRIVER"
+            ;;
+        "3090")
+            	DRIVER=$(ubuntu-drivers devices | grep -i "nvidia-driver-4" | awk '{print $3}' | head -1)
+		echo "$DRIVER"
+            ;;
+        "4090")
+            	DRIVER=$(ubuntu-drivers devices | grep -i "nvidia-driver-5" | awk '{print $3}' | head -1)
+		echo "$DRIVER"
+            ;;
+        "5090")
+             	DRIVER=$(ubuntu-drivers devices | grep -i "nvidia-driver-5" | awk '{print $3}' | tail -1)
+		echo "$DRIVER"
+            ;;
+        *)
+            echo "未识别的显卡型号: $GPU_MODEL，安装最新稳定版驱动"
+            DRIVER="nvidia-driver-535"
+            ;;
+    esac
+
+    if [[ -n "$DRIVER" ]]; then
+        echo "安装驱动: $DRIVER"
+        DEBIAN_FRONTEND=noninteractive sudo apt-get install -y "$DRIVER"
+    else
+        echo "未找到适配驱动，请检查系统或显卡型号"
+        exit 1
+    fi
+}
+
 # 安装NVIDIA容器支持
 install_nvidia_docker() {
     if [[ "$HAS_NVIDIA" != "true" ]]; then
@@ -189,28 +239,58 @@ install_nvidia_docker() {
     log_info "安装NVIDIA容器支持..."
     
     # 安装NVIDIA驱动（如果未安装）
-    if [[ "$HAS_NVIDIA_DRIVER" != "true" ]]; then
-        log_info "安装NVIDIA驱动..."
-        
-        # 添加NVIDIA驱动PPA
-        add-apt-repository -y ppa:graphics-drivers/ppa
-        sudo apt-get update
-        
-        # 自动检测推荐驱动
-        RECOMMENDED_DRIVER=$(ubuntu-drivers devices | grep recommended | awk '{print $3}' | head -1)
-        if [[ -n "$RECOMMENDED_DRIVER" ]]; then
-            log_info "安装推荐驱动: $RECOMMENDED_DRIVER"
-            sudo apt-get install -y "$RECOMMENDED_DRIVER"
-        else
-            log_info "安装最新稳定版驱动"
-            sudo apt-get install -y nvidia-driver-535
-        fi
-        
-        log_warning "NVIDIA驱动安装完成，需要重启系统后才能继续安装NVIDIA Docker"
-        log_warning "请运行: sudo reboot"
-        log_warning "重启后重新运行此脚本继续安装NVIDIA Docker组件"
-        return
-    fi
+if [[ "$HAS_NVIDIA_DRIVER" != "true" ]]; then
+	echo "驱动未安装，开始安装......"
+	install_Driver
+else
+    	echo "驱动已安装，检查已安装驱动是否与显卡匹配"
+	# 获取 NVIDIA 驱动程序版本
+	driver_version=$(cat /proc/driver/nvidia/version | grep "NVRM version" | awk '{print $3}')
+
+	# 获取 NVML 版本
+	nvml_version=$(nvidia-smi --query-gpu=driver_version --format=csv,noheader)
+
+	if [ "$driver_version" == "$nvml_version" ]; then
+    		echo "NVIDIA 驱动程序和 NVML 库版本匹配: $driver_version"
+	else
+    		echo "版本不匹配:"
+    		echo "驱动程序版本: $driver_version"
+    		echo "NVML 版本: $nvml_version"
+		echo "============================"
+		echo "开始重装驱动......"
+		echo "============================"
+		processes=$(ps aux | grep -E 'apt|dpkg' | grep -v grep)
+		echo  "先检查apt或dpkg是否被占用"
+		if [ -n "$processes" ]; then
+    			echo "发现以下进程正在使用 apt 或 dpkg："
+    			echo "$processes"
+    
+    			# 获取进程 ID 并终止它们
+    			echo "$processes" | awk '{print $2}' | xargs -r sudo kill -9
+    			echo "已终止相关进程。"
+		else
+    			echo "没有找到正在使用 apt 或 dpkg 的进程。"
+		fi
+		echo "卸载之前的驱动"
+		DEBIAN_FRONTEND=noninteractive sudo apt-get remove --purge '^nvidia-.*' -y
+		if [ $? -eq 0 ]; then
+    			echo "NVIDIA 驱动程序卸载成功。"
+		else
+    			echo "NVIDIA 驱动程序卸载失败。再次重试......"
+			sudo apt update
+			DEBIAN_FRONTEND=noninteractive sudo apt-get remove --purge '^nvidia-.*' -y
+			if [ $? -eq 0 ]; then
+   				 echo "NVIDIA 驱动程序卸载成功。"
+			else
+    				echo "NVIDIA 驱动程序再次卸载失败。请检查错误信息。"
+				exit 1
+			fi
+		fi
+		echo "开始重装驱动......"
+		install_Driver
+	fi
+fi
+
 
 # 检查nvidia-container-toolkit是否已安装
 if ! dpkg -l | grep -q nvidia-container-toolkit; then
