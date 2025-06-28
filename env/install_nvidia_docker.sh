@@ -187,46 +187,21 @@ install_Driver() {
         # 添加NVIDIA驱动PPA
         add-apt-repository -y ppa:graphics-drivers/ppa
         sudo apt-get update
-        
-	# 检查是否安装 NVIDIA 驱动
-	HAS_NVIDIA_DRIVER=$(dpkg -l | grep -i nvidia-driver)
 
-	# 获取当前显卡型号
-	GPU_MODEL=$(inxi -G | grep -i nvidia | awk -F '[[]|]' '{print $2}' | sed 's/.* //')
-        # 自动检测推荐驱动
-    	RECOMMENDED_DRIVER=$(ubuntu-drivers devices | grep recommended | awk '{print $3}' | head -1)
-
-    	# 根据显卡型号选择适配的驱动
-    	case "$GPU_MODEL" in
-        "3070")
-            	DRIVER=$(ubuntu-drivers devices | grep -i "nvidia-driver-3" | awk '{print $3}' | head -1)
-		echo "$DRIVER"
-            ;;
-        "3090")
-            	DRIVER=$(ubuntu-drivers devices | grep -i "nvidia-driver-4" | awk '{print $3}' | head -1)
-		echo "$DRIVER"
-            ;;
-        "4090")
-            	DRIVER=$(ubuntu-drivers devices | grep -i "nvidia-driver-5" | awk '{print $3}' | head -1)
-		echo "$DRIVER"
-            ;;
-        "5090")
-             	DRIVER=$(ubuntu-drivers devices | grep -i "nvidia-driver-5" | awk '{print $3}' | tail -1)
-		echo "$DRIVER"
-            ;;
-        *)
-            echo "未识别的显卡型号: $GPU_MODEL，安装最新稳定版驱动"
-            DRIVER="nvidia-driver-535"
-            ;;
-    esac
-
-    if [[ -n "$DRIVER" ]]; then
-        echo "安装驱动: $DRIVER"
-        DEBIAN_FRONTEND=noninteractive sudo apt-get install -y "$DRIVER"
+        sudo ubuntu-drivers autoinstall
+        sudo modprobe nvidia
+	# 获取 NVIDIA 驱动程序版本
+        driver_version1=$(cat /proc/driver/nvidia/version | grep -oP 'NVRM version:.*? (\d+\.\d+\.\d+)' | grep -oP '\d+\.\d+\.\d+')
+	# 获取 NVML 版本
+	nvml_version1=$(nvidia-smi --query-gpu=driver_version --format=csv,noheader)
+    if [ "$driver_version1" == "$nvml_version1" ]; then
+    	echo "NVIDIA 驱动程序和 NVML 库版本匹配: $driver_version"
     else
-        echo "未找到适配驱动，请检查系统或显卡型号"
-        exit 1
+     	echo "NVIDIA 驱动程序和 NVML 库版本不匹配: $driver_version，$nvml_version"
+      	echo "驱动安装失败！"
+      	exit 1
     fi
+
 }
 
 # 安装NVIDIA容器支持
@@ -245,7 +220,7 @@ if [[ "$HAS_NVIDIA_DRIVER" != "true" ]]; then
 else
     	echo "驱动已安装，检查已安装驱动是否与显卡匹配"
 	# 获取 NVIDIA 驱动程序版本
-	driver_version=$(cat /proc/driver/nvidia/version | grep "NVRM version" | awk '{print $3}')
+	driver_version=$(cat /proc/driver/nvidia/version | grep -oP 'NVRM version:.*? (\d+\.\d+\.\d+)' | grep -oP '\d+\.\d+\.\d+')
 
 	# 获取 NVML 版本
 	nvml_version=$(nvidia-smi --query-gpu=driver_version --format=csv,noheader)
@@ -285,6 +260,8 @@ else
     				echo "NVIDIA 驱动程序再次卸载失败。请检查错误信息。"
 				exit 1
 			fi
+   			sudo apt-get autoremove -y
+			sudo apt-get autoclean -y
 		fi
 		echo "开始重装驱动......"
 		install_Driver
@@ -299,24 +276,40 @@ if ! dpkg -l | grep -q nvidia-container-toolkit; then
     		echo "已成功下载 Docker GPG 密钥源，跳过下载。"
 	else
     		echo "未找到 Docker GPG 密钥源，尝试下载..."
-    		curl -fsSL https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg --yes
+    		max_retries=30
+		# 当前重试次数
+		attempt=0
+
+		while [ $attempt -lt $max_retries ]; do
+    			# 执行下载和保存命令
+    			curl -fsSL https://mirrors.ustc.edu.cn/libnvidia-iner/gpgkey | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg --yes
+    
+    			# 检查命令是否成功
+   			if [ $? -eq 0 ]; then
+        			echo "下载成功!"
+        			break
+    			fi
+    
+    			attempt=$((attempt + 1))
+    			echo "下载失败，正在重试... (尝试次数: $attempt/$max_retries)"
+    
+    			# 等待一段时间再重试
+    			sleep 2
+		done
+
+		if [ $attempt -eq $max_retries ]; then
+    			echo "达到最大重试次数，下载失败!"
+       			exit 1
+		fi
     
     		if gpg --list-keys --keyring /usr/share/keyrings/docker-archive-keyring.gpg &>/dev/null; then
         		echo "Docker GPG 密钥源下载成功。"
 			echo "配置相应的APT源"
-			
+			echo -e "deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://mirrors.ustc.edu.cn/libnvidia-iner/stable/deb/\$(ARCH) /\n#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://mirrors.ustc.edu.cn/libnvidia-iner/experimental/deb/\$(ARCH) /" | sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
     		else
-        		echo "Docker GPG 密钥源下载失败，尝试下载 NVIDIA GPG 密钥源..."
-        		curl -fsSL https://mirrors.ustc.edu.cn/libnvidia-iner/gpgkey | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg --yes
         		
-        		if gpg --list-keys --keyring /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg &>/dev/null; then
-            			echo "使用中科大NVIDIA GPG 密钥源下载成功。"
-				echo "配置相应的APT源"
-				echo -e "deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://mirrors.ustc.edu.cn/libnvidia-iner/stable/deb/\$(ARCH) /\n#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://mirrors.ustc.edu.cn/libnvidia-iner/experimental/deb/\$(ARCH) /" | sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
-        		else
-            			echo "GPG 密钥源安装失败，请手动查找可用的 GPG 密钥源。"
-            			exit 1
-        		fi
+            		echo "GPG 密钥源安装失败，请手动查找可用的 GPG 密钥源。"
+            		exit 1
     		fi
 	fi
     
