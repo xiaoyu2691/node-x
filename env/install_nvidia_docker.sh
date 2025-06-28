@@ -245,8 +245,10 @@ check_and_install_toolkit() {
         fi
 
         # 更新APT包索引
-        sudo apt-get update
-	
+	echo "deb https://mirrors.aliyun.com/nvidia-docker/$(lsb_release -cs) nvidia-docker main" | sudo tee /etc/apt/sources.list.d/nvidia-docker.list
+ 
+        sudo apt-get update -y
+	sudo apt install -y nvidia-docker2
 
         # 安装NVIDIA Container Toolkit和CUDA
         DEBIAN_FRONTEND=noninteractive sudo apt-get install -y nvidia-container-toolkit nvidia-container-runtime
@@ -282,7 +284,6 @@ check_and_install_toolkit() {
 }
 EOF
         fi
-        sudo apt install -y nvidia-docker2
         # 重启Docker服务
         systemctl restart docker
         
@@ -341,10 +342,11 @@ install_nvidia_docker() {
     fi
 
     log_info "安装NVIDIA容器支持..."
-
     # 安装NVIDIA驱动（如果未安装）
     if [[ "$HAS_NVIDIA_DRIVER" != "true" ]]; then
         echo "驱动未安装，开始安装......"
+	sudo apt update -y
+	sudo ubuntu-drivers install
         install_Driver
     else
         echo "驱动已安装，检查已安装驱动是否与显卡匹配"
@@ -733,7 +735,7 @@ LOCATION=$(curl -s "http://ip-api.com/json/$IP_ADDRESS" | jq -r '.country')
 if [ "$docker_installed" = true ] && [ "$nvidia_docker_installed" = true ]; then
     echo "Docker 和 NVIDIA Docker 都已安装，$docker_installed,$nvidia_docker_installed"
 else
-    echo "NVIDIA Docker 未安装，现在开始安装......"
+    echo "NVIDIA Docker 未安装，现在开始安装......$docker_installed,$nvidia_docker_installed"
     if [ "$LOCATION" == "China" ]; then
     	log_info "检测为国内IP"
     	domestic_docker_install
