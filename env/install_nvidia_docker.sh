@@ -731,10 +731,8 @@ IP_ADDRESS=$(curl -s http://ipinfo.io/ip)
 # 获取IP地址的地理位置
 LOCATION=$(curl -s "http://ip-api.com/json/$IP_ADDRESS" | jq -r '.country')
 
-
-
 # 输出结果
-if $docker_installed && $nvidia_docker_installed; then
+if [ "$docker_installed" = true ] && [ "$nvidia_docker_installed" = true ]; then
     echo "Docker 和 NVIDIA Docker 都已安装"
 else
     if [ "$LOCATION" == "China" ]; then
