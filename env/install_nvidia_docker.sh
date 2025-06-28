@@ -405,7 +405,9 @@ test_installation() {
         exit 1
     }
 } && log_success "Docker 服务正常运行"
-    
+
+
+
     # 测试Docker
     if sudo docker run --rm hello-world >/dev/null 2>&1; then
         log_success "Docker测试通过"
