@@ -210,127 +210,118 @@ install_nvidia_docker() {
         log_info "未检测到NVIDIA显卡，跳过NVIDIA Docker安装"
         return
     fi
-    
+
     log_info "安装NVIDIA容器支持..."
-    
+
     # 安装NVIDIA驱动（如果未安装）
-if [[ "$HAS_NVIDIA_DRIVER" != "true" ]]; then
-	echo "驱动未安装，开始安装......"
-	install_Driver
-else
-    	echo "驱动已安装，检查已安装驱动是否与显卡匹配"
-	# 获取 NVIDIA 驱动程序版本
-	driver_version=$(cat /proc/driver/nvidia/version | grep -oP 'NVRM version:.*? (\d+\.\d+\.\d+)' | grep -oP '\d+\.\d+\.\d+')
-
-	# 获取 NVML 版本
-	nvml_version=$(nvidia-smi --query-gpu=driver_version --format=csv,noheader)
-
-	if [ "$driver_version" == "$nvml_version" ]; then
-    		echo "NVIDIA 驱动程序和 NVML 库版本匹配: $driver_version"
-	else
-    		echo "版本不匹配:"
-    		echo "驱动程序版本: $driver_version"
-    		echo "NVML 版本: $nvml_version"
-		echo "============================"
-		echo "开始重装驱动......"
-		echo "============================"
-		processes=$(ps aux | grep -E 'apt|dpkg' | grep -v grep)
-		echo  "先检查apt或dpkg是否被占用"
-		if [ -n "$processes" ]; then
-    			echo "发现以下进程正在使用 apt 或 dpkg："
-    			echo "$processes"
-    
-    			# 获取进程 ID 并终止它们
-    			echo "$processes" | awk '{print $2}' | xargs -r sudo kill -9
-    			echo "已终止相关进程。"
-		else
-    			echo "没有找到正在使用 apt 或 dpkg 的进程。"
-		fi
-		echo "卸载之前的驱动"
-		DEBIAN_FRONTEND=noninteractive sudo apt-get remove --purge '^nvidia-.*' -y
-		if [ $? -eq 0 ]; then
-    			echo "NVIDIA 驱动程序卸载成功。"
-		else
-    			echo "NVIDIA 驱动程序卸载失败。再次重试......"
-			sudo apt update
-			DEBIAN_FRONTEND=noninteractive sudo apt-get remove --purge '^nvidia-.*' -y
-			if [ $? -eq 0 ]; then
-   				 echo "NVIDIA 驱动程序卸载成功。"
-			else
-    				echo "NVIDIA 驱动程序再次卸载失败。请检查错误信息。"
-				exit 1
-			fi
-   			sudo apt-get autoremove -y
-			sudo apt-get autoclean -y
-		fi
-		echo "开始重装驱动......"
-		install_Driver
-	fi
-fi
-
-
-# 检查nvidia-container-toolkit是否已安装
-if ! dpkg -l | grep -q nvidia-container-toolkit; then
-    	echo "nvidia-container-toolkit未安装，正在安装..."
-	if gpg --list-keys --keyring /usr/share/keyrings/docker-archive-keyring.gpg &>/dev/null; then
-    		echo "已成功下载 Docker GPG 密钥源，跳过下载。"
-	else
-    		echo "未找到 Docker GPG 密钥源，尝试下载..."
-    		max_retries=30
-		# 当前重试次数
-		attempt=0
-
-		while [ $attempt -lt $max_retries ]; do
-    			# 执行下载和保存命令
-    			curl -fsSL https://mirrors.ustc.edu.cn/libnvidia-iner/gpgkey | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg --yes
-    
-    			# 检查命令是否成功
-   			if [ $? -eq 0 ]; then
-        			echo "下载成功!"
-        			break
-    			fi
-    
-    			attempt=$((attempt + 1))
-    			echo "下载失败，正在重试... (尝试次数: $attempt/$max_retries)"
-    
-    			# 等待一段时间再重试
-    			sleep 2
-		done
-
-		if [ $attempt -eq $max_retries ]; then
-    			echo "达到最大重试次数，下载失败!"
-       			exit 1
-		fi
-    
-    		if gpg --list-keys --keyring /usr/share/keyrings/docker-archive-keyring.gpg &>/dev/null; then
-        		echo "Docker GPG 密钥源下载成功。"
-			echo "配置相应的APT源"
-			echo -e "deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://mirrors.ustc.edu.cn/libnvidia-iner/stable/deb/\$(ARCH) /\n#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://mirrors.ustc.edu.cn/libnvidia-iner/experimental/deb/\$(ARCH) /" | sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
-    		else
-        		
-            		echo "GPG 密钥源安装失败，请手动查找可用的 GPG 密钥源。"
-            		exit 1
-    		fi
-	fi
-    
-
-    # 更新APT包索引
-    sudo apt-get update
-
-    # 安装NVIDIA Container Toolkit和CUDA
-    DEBIAN_FRONTEND=noninteractive sudo apt-get install -y nvidia-container-toolkit nvidia-container-runtime
-    DEBIAN_FRONTEND=noninteractive sudo apt install -y nvidia-cuda-toolkit
-
-    # 配置Docker使用NVIDIA运行时
-    nvidia-ctk runtime configure --runtime=docker
-
-     # 更新Docker配置
-    if [[ -f /etc/docker/daemon.json ]]; then
-        # 备份现有配置
-        cp /etc/docker/daemon.json /etc/docker/daemon.json.backup
+    if [[ "$HAS_NVIDIA_DRIVER" != "true" ]]; then
+        echo "驱动未安装，开始安装......"
+        install_Driver
+    else
+        echo "驱动已安装，检查已安装驱动是否与显卡匹配"
         
-        # 手动更新配置
-        cat > /etc/docker/daemon.json << EOF
+        # 获取 NVIDIA 驱动程序版本
+        driver_version=$(cat /proc/driver/nvidia/version | grep -oP 'NVRM version:.*? (\d+\.\d+\.\d+)' | grep -oP '\d+\.\d+\.\d+')
+
+        # 获取 NVML 版本
+        nvml_version=$(nvidia-smi --query-gpu=driver_version --format=csv,noheader)
+
+        if [ "$driver_version" == "$nvml_version" ]; then
+            echo "NVIDIA 驱动程序和 NVML 库版本匹配: $driver_version"
+        else
+            echo "版本不匹配:"
+            echo "驱动程序版本: $driver_version"
+            echo "NVML 版本: $nvml_version"
+            echo "============================"
+            echo "开始重装驱动......"
+            echo "============================"
+            processes=$(ps aux | grep -E 'apt|dpkg' | grep -v grep)
+            echo "先检查apt或dpkg是否被占用"
+            if [ -n "$processes" ]; then
+                echo "发现以下进程正在使用 apt 或 dpkg："
+                echo "$processes"
+
+                # 获取进程 ID 并终止它们
+                echo "$processes" | awk '{print $2}' | xargs -r sudo kill -9
+                echo "已终止相关进程。"
+            else
+                echo "没有找到正在使用 apt 或 dpkg 的进程。"
+            fi
+            echo "卸载之前的驱动"
+            DEBIAN_FRONTEND=noninteractive sudo apt-get remove --purge '^nvidia-.*' -y
+            if [ $? -eq 0 ]; then
+                echo "NVIDIA 驱动程序卸载成功。"
+            else
+                echo "NVIDIA 驱动程序卸载失败。再次重试......"
+                sudo apt update
+                DEBIAN_FRONTEND=noninteractive sudo apt-get remove --purge '^nvidia-.*' -y
+                if [ $? -eq 0 ]; then
+                    echo "NVIDIA 驱动程序卸载成功。"
+                else
+                    echo "NVIDIA 驱动程序再次卸载失败。请检查错误信息。"
+                    exit 1
+                fi
+                sudo apt-get autoremove -y
+                sudo apt-get autoclean -y
+            fi
+            echo "开始重装驱动......"
+            install_Driver
+        fi
+    fi
+
+    # 检查nvidia-container-toolkit是否已安装
+    if ! dpkg -l | grep -q nvidia-container-toolkit; then
+        echo "nvidia-container-toolkit未安装，正在安装..."
+        if gpg --list-keys --keyring /usr/share/keyrings/docker-archive-keyring.gpg &>/dev/null; then
+            echo "已成功下载 Docker GPG 密钥源，跳过下载。"
+        else
+            echo "未找到 Docker GPG 密钥源，尝试下载..."
+            max_retries=30
+            attempt=0
+
+            while [ $attempt -lt $max_retries ]; do
+                curl -fsSL https://mirrors.ustc.edu.cn/libnvidia-iner/gpgkey | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg --yes
+
+                if [ $? -eq 0 ]; then
+                    echo "下载成功!"
+                    break
+                fi
+
+                attempt=$((attempt + 1))
+                echo "下载失败，正在重试... (尝试次数: $attempt/$max_retries)"
+                sleep 2
+            done
+
+            if [ $attempt -eq $max_retries ]; then
+                echo "达到最大重试次数，下载失败!"
+                exit 1
+            fi
+
+            if gpg --list-keys --keyring /usr/share/keyrings/docker-archive-keyring.gpg &>/dev/null; then
+                echo "Docker GPG 密钥源下载成功。"
+                echo "配置相应的APT源"
+                echo -e "deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://mirrors.ustc.edu.cn/libnvidia-iner/stable/deb/\$(ARCH) /\n#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://mirrors.ustc.edu.cn/libnvidia-iner/experimental/deb/\$(ARCH) /" | sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
+            else
+                echo "GPG 密钥源安装失败，请手动查找可用的 GPG 密钥源。"
+                exit 1
+            fi
+        fi
+
+        # 更新APT包索引
+        sudo apt-get update
+
+        # 安装NVIDIA Container Toolkit和CUDA
+        DEBIAN_FRONTEND=noninteractive sudo apt-get install -y nvidia-container-toolkit nvidia-container-runtime
+        DEBIAN_FRONTEND=noninteractive sudo apt install -y nvidia-cuda-toolkit
+
+        # 配置Docker使用NVIDIA运行时
+        nvidia-ctk runtime configure --runtime=docker
+
+        # 更新Docker配置
+        if [[ -f /etc/docker/daemon.json ]]; then
+            cp /etc/docker/daemon.json /etc/docker/daemon.json.backup
+            
+            cat > /etc/docker/daemon.json << EOF
 {
     "registry-mirrors": [
         "https://registry.cn-hangzhou.aliyuncs.com",
@@ -354,59 +345,54 @@ if ! dpkg -l | grep -q nvidia-container-toolkit; then
     }
 }
 EOF
-    fi
-    
-    # 重启Docker服务
-    systemctl restart docker
-    
-else
-    echo "nvidia-container-toolkit已安装，跳过安装。"
-fi
-    
-   
-    
-# 安装CUDA Toolkit（可选）
-install_cuda=$2
-if [[ $install_cuda =~ ^[Yy]$ ]]; then
-    log_info "检查CUDA Toolkit是否已安装..."
-    
-    # 检查CUDA是否已安装
-    if ! command -v nvcc &> /dev/null; then
-        log_info "CUDA Toolkit未安装，开始安装..."
-        
-        # 检测合适的CUDA版本
-        if [[ -n "$CUDA_VERSION" ]]; then
-            CUDA_MAJOR=$(echo $CUDA_VERSION | cut -d. -f1)
-            CUDA_MINOR=$(echo $CUDA_VERSION | cut -d. -f2)
-            log_info "根据驱动版本安装CUDA $CUDA_MAJOR.$CUDA_MINOR"
-            
-            case $CUDA_MAJOR in
-                12)
-                    sudo apt-get install -y cuda-toolkit-12-0
-                    ;;
-                11)
-                    sudo apt-get install -y cuda-toolkit-11-8
-                    ;;
-                *)
-                    sudo apt-get install -y cuda-toolkit
-                    ;;
-            esac
-        else
-            sudo apt-get install -y cuda-toolkit
         fi
         
-        # 配置环境变量
-        echo 'export PATH=/usr/local/cuda/bin:$PATH' >> /etc/environment
-        echo 'export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH' >> /etc/environment
+        # 重启Docker服务
+        systemctl restart docker
         
-        log_success "CUDA Toolkit安装完成"
     else
-        log_info "CUDA Toolkit已安装"
+        echo "nvidia-container-toolkit已安装，跳过安装。"
     fi
-fi
-log_success "NVIDIA Docker支持安装完成"
-}
 
+    # 安装CUDA Toolkit（可选）
+    install_cuda=$2
+    if [[ $install_cuda =~ ^[Yy]$ ]]; then
+        log_info "检查CUDA Toolkit是否已安装..."
+        
+        if ! command -v nvcc &> /dev/null; then
+            log_info "CUDA Toolkit未安装，开始安装..."
+            
+            if [[ -n "$CUDA_VERSION" ]]; then
+                CUDA_MAJOR=$(echo $CUDA_VERSION | cut -d. -f1)
+                CUDA_MINOR=$(echo $CUDA_VERSION | cut -d. -f2)
+                log_info "根据驱动版本安装CUDA $CUDA_MAJOR.$CUDA_MINOR"
+                
+                case $CUDA_MAJOR in
+                    12)
+                        sudo apt-get install -y cuda-toolkit-12-0
+                        ;;
+                    11)
+                        sudo apt-get install -y cuda-toolkit-11-8
+                        ;;
+                    *)
+                        sudo apt-get install -y cuda-toolkit
+                        ;;
+                esac
+            else
+                sudo apt-get install -y cuda-toolkit
+            fi
+            
+            echo 'export PATH=/usr/local/cuda/bin:$PATH' >> /etc/environment
+            echo 'export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH' >> /etc/environment
+            
+            log_success "CUDA Toolkit安装完成"
+        else
+            log_info "CUDA Toolkit已安装"
+        fi
+    fi
+
+    log_success "NVIDIA Docker支持安装完成"
+}
 # 测试安装
 test_installation() {
     log_info "测试Docker安装..."
