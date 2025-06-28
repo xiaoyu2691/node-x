@@ -406,7 +406,7 @@ test_installation() {
         log_error "Docker测试失败"
     fi
     
-    # 测试NVIDIA Docker（如果安装了）
+    # 测试NVIDIA Docker
     if [[ "$HAS_NVIDIA" == "true" && "$HAS_NVIDIA_DRIVER" == "true" ]]; then
         log_info "测试NVIDIA Docker..."
         if sudo docker run --rm --gpus all nvidia/cuda:11.8-base-ubuntu20.04 nvidia-smi >/dev/null 2>&1; then
