@@ -397,7 +397,14 @@ EOF
 test_installation() {
     log_info "测试Docker安装..."
         
-    sudo systemctl is-active --quiet docker || { log_warning "Docker 服务未激活，正在重启..."; sudo systemctl restart docker; sudo systemctl is-active --quiet docker || { log_error "Docker 服务异常"; exit 1; }; } && log_success "Docker 服务正常运行"
+    sudo systemctl is-active --quiet docker || {
+    log_warning "Docker 服务未激活，正在重启..."
+    sudo systemctl restart docker
+    sudo systemctl is-active --quiet docker || {
+        log_error "Docker 服务异常"
+        exit 1
+    }
+} && log_success "Docker 服务正常运行"
     
     # 测试Docker
     if sudo docker run --rm hello-world >/dev/null 2>&1; then
