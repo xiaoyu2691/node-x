@@ -294,13 +294,32 @@ fi
 
 # 检查nvidia-container-toolkit是否已安装
 if ! dpkg -l | grep -q nvidia-container-toolkit; then
-    echo "nvidia-container-toolkit未安装，正在安装..."
-
-    # 添加GPG密钥
-    curl -fsSL https://mirrors.ustc.edu.cn/libnvidia-iner/gpgkey | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg --yes
-
-    # 添加APT源
-    echo -e "deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://mirrors.ustc.edu.cn/libnvidia-iner/stable/deb/\$(ARCH) /\n#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://mirrors.ustc.edu.cn/libnvidia-iner/experimental/deb/\$(ARCH) /" | sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
+    	echo "nvidia-container-toolkit未安装，正在安装..."
+	if gpg --list-keys --keyring /usr/share/keyrings/docker-archive-keyring.gpg &>/dev/null; then
+    		echo "已成功下载 Docker GPG 密钥源，跳过下载。"
+	else
+    		echo "未找到 Docker GPG 密钥源，尝试下载..."
+    		curl -fsSL https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg --yes
+    
+    		if gpg --list-keys --keyring /usr/share/keyrings/docker-archive-keyring.gpg &>/dev/null; then
+        		echo "Docker GPG 密钥源下载成功。"
+			echo "配置相应的APT源"
+			
+    		else
+        		echo "Docker GPG 密钥源下载失败，尝试下载 NVIDIA GPG 密钥源..."
+        		curl -fsSL https://mirrors.ustc.edu.cn/libnvidia-iner/gpgkey | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg --yes
+        		
+        		if gpg --list-keys --keyring /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg &>/dev/null; then
+            			echo "使用中科大NVIDIA GPG 密钥源下载成功。"
+				echo "配置相应的APT源"
+				echo -e "deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://mirrors.ustc.edu.cn/libnvidia-iner/stable/deb/\$(ARCH) /\n#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://mirrors.ustc.edu.cn/libnvidia-iner/experimental/deb/\$(ARCH) /" | sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
+        		else
+            			echo "GPG 密钥源安装失败，请手动查找可用的 GPG 密钥源。"
+            			exit 1
+        		fi
+    		fi
+	fi
+    
 
     # 更新APT包索引
     sudo apt-get update
@@ -353,7 +372,7 @@ fi
     
    
     
-    # 安装CUDA Toolkit（可选）
+# 安装CUDA Toolkit（可选）
 install_cuda=$2
 if [[ $install_cuda =~ ^[Yy]$ ]]; then
     log_info "检查CUDA Toolkit是否已安装..."
@@ -393,6 +412,7 @@ if [[ $install_cuda =~ ^[Yy]$ ]]; then
     fi
 fi
     log_success "NVIDIA Docker支持安装完成"
+}
 }
 
 # 测试安装
