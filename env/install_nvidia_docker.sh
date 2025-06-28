@@ -700,15 +700,36 @@ else
     log_info "jq 已安装。"
 fi
 
+# 检查 Docker
+if command -v docker &> /dev/null; then
+    docker_installed=true
+else
+    docker_installed=false
+fi
+
+# 检查 NVIDIA Docker
+if command -V nvcc &> /dev/null; then
+    nvidia_docker_installed=true
+else
+    nvidia_docker_installed=false
+fi
+
 # 获取本地IP地址
 IP_ADDRESS=$(curl -s http://ipinfo.io/ip)
 # 获取IP地址的地理位置
 LOCATION=$(curl -s "http://ip-api.com/json/$IP_ADDRESS" | jq -r '.country')
 
-if [ "$LOCATION" == "China" ]; then
-    log_info "检测为国内IP"
-    domestic_docker_install
+
+
+# 输出结果
+if $docker_installed && $nvidia_docker_installed; then
+    echo "Docker 和 NVIDIA Docker 都已安装"
 else
-    log_info "检测为国外IP"
-    foreign_docker_install
+    if [ "$LOCATION" == "China" ]; then
+    	log_info "检测为国内IP"
+    	domestic_docker_install
+    else
+    	log_info "检测为国外IP"
+    	foreign_docker_install
+    fi
 fi
