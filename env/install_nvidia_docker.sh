@@ -405,6 +405,7 @@ if [[ $install_cuda =~ ^[Yy]$ ]]; then
     fi
 fi
     log_success "NVIDIA Docker支持安装完成"
+    
 }
 
 # 测试安装
