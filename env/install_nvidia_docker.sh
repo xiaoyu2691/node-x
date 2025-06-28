@@ -204,72 +204,9 @@ install_Driver() {
 
 }
 
-# 安装NVIDIA容器支持
-install_nvidia_docker() {
-    if [[ "$HAS_NVIDIA" != "true" ]]; then
-        log_info "未检测到NVIDIA显卡，跳过NVIDIA Docker安装"
-        return
-    fi
+check_and_install_toolkit() {
 
-    log_info "安装NVIDIA容器支持..."
-
-    # 安装NVIDIA驱动（如果未安装）
-    if [[ "$HAS_NVIDIA_DRIVER" != "true" ]]; then
-        echo "驱动未安装，开始安装......"
-        install_Driver
-    else
-        echo "驱动已安装，检查已安装驱动是否与显卡匹配"
-        
-        # 获取 NVIDIA 驱动程序版本
-        driver_version=$(cat /proc/driver/nvidia/version | grep -oP 'NVRM version:.*? (\d+\.\d+\.\d+)' | grep -oP '\d+\.\d+\.\d+')
-
-        # 获取 NVML 版本
-        nvml_version=$(nvidia-smi --query-gpu=driver_version --format=csv,noheader)
-
-        if [ "$driver_version" == "$nvml_version" ]; then
-            echo "NVIDIA 驱动程序和 NVML 库版本匹配: $driver_version"
-        else
-            echo "版本不匹配:"
-            echo "驱动程序版本: $driver_version"
-            echo "NVML 版本: $nvml_version"
-            echo "============================"
-            echo "开始重装驱动......"
-            echo "============================"
-            processes=$(ps aux | grep -E 'apt|dpkg' | grep -v grep)
-            echo "先检查apt或dpkg是否被占用"
-            if [ -n "$processes" ]; then
-                echo "发现以下进程正在使用 apt 或 dpkg："
-                echo "$processes"
-
-                # 获取进程 ID 并终止它们
-                echo "$processes" | awk '{print $2}' | xargs -r sudo kill -9
-                echo "已终止相关进程。"
-            else
-                echo "没有找到正在使用 apt 或 dpkg 的进程。"
-            fi
-            echo "卸载之前的驱动"
-            DEBIAN_FRONTEND=noninteractive sudo apt-get remove --purge '^nvidia-.*' -y
-            if [ $? -eq 0 ]; then
-                echo "NVIDIA 驱动程序卸载成功。"
-            else
-                echo "NVIDIA 驱动程序卸载失败。再次重试......"
-                sudo apt update
-                DEBIAN_FRONTEND=noninteractive sudo apt-get remove --purge '^nvidia-.*' -y
-                if [ $? -eq 0 ]; then
-                    echo "NVIDIA 驱动程序卸载成功。"
-                else
-                    echo "NVIDIA 驱动程序再次卸载失败。请检查错误信息。"
-                    exit 1
-                fi
-                sudo apt-get autoremove -y
-                sudo apt-get autoclean -y
-            fi
-            echo "开始重装驱动......"
-            install_Driver
-        fi
-    fi
-
-    # 检查nvidia-container-toolkit是否已安装
+# 检查nvidia-container-toolkit是否已安装
     if ! dpkg -l | grep -q nvidia-container-toolkit; then
         echo "nvidia-container-toolkit未安装，正在安装..."
         if gpg --list-keys --keyring /usr/share/keyrings/docker-archive-keyring.gpg &>/dev/null; then
@@ -353,9 +290,12 @@ EOF
     else
         echo "nvidia-container-toolkit已安装，跳过安装。"
     fi
+}
 
-    # 安装CUDA Toolkit（可选）
+check_and_install_cuda() {
+    # 安装CUDA Toolkit
     install_cuda=$2
+    
     if [[ $install_cuda =~ ^[Yy]$ ]]; then
         log_info "检查CUDA Toolkit是否已安装..."
         
@@ -390,7 +330,77 @@ EOF
             log_info "CUDA Toolkit已安装"
         fi
     fi
+}
 
+
+
+# 安装NVIDIA容器支持
+install_nvidia_docker() {
+    if [[ "$HAS_NVIDIA" != "true" ]]; then
+        log_info "未检测到NVIDIA显卡，跳过NVIDIA Docker安装"
+        return
+    fi
+
+    log_info "安装NVIDIA容器支持..."
+
+    # 安装NVIDIA驱动（如果未安装）
+    if [[ "$HAS_NVIDIA_DRIVER" != "true" ]]; then
+        echo "驱动未安装，开始安装......"
+        install_Driver
+    else
+        echo "驱动已安装，检查已安装驱动是否与显卡匹配"
+        
+        # 获取 NVIDIA 驱动程序版本
+        driver_version=$(cat /proc/driver/nvidia/version | grep -oP 'NVRM version:.*? (\d+\.\d+\.\d+)' | grep -oP '\d+\.\d+\.\d+')
+
+        # 获取 NVML 版本
+        nvml_version=$(nvidia-smi --query-gpu=driver_version --format=csv,noheader)
+
+        if [ "$driver_version" == "$nvml_version" ]; then
+            echo "NVIDIA 驱动程序和 NVML 库版本匹配: $driver_version"
+        else
+            echo "版本不匹配:"
+            echo "驱动程序版本: $driver_version"
+            echo "NVML 版本: $nvml_version"
+            echo "============================"
+            echo "开始重装驱动......"
+            echo "============================"
+            processes=$(ps aux | grep -E 'apt|dpkg' | grep -v grep)
+            echo "先检查apt或dpkg是否被占用"
+            if [ -n "$processes" ]; then
+                echo "发现以下进程正在使用 apt 或 dpkg："
+                echo "$processes"
+
+                # 获取进程 ID 并终止它们
+                echo "$processes" | awk '{print $2}' | xargs -r sudo kill -9
+                echo "已终止相关进程。"
+            else
+                echo "没有找到正在使用 apt 或 dpkg 的进程。"
+            fi
+            echo "卸载之前的驱动"
+            DEBIAN_FRONTEND=noninteractive sudo apt-get remove --purge '^nvidia-.*' -y
+            if [ $? -eq 0 ]; then
+                echo "NVIDIA 驱动程序卸载成功。"
+            else
+                echo "NVIDIA 驱动程序卸载失败。再次重试......"
+                sudo apt update
+                DEBIAN_FRONTEND=noninteractive sudo apt-get remove --purge '^nvidia-.*' -y
+                if [ $? -eq 0 ]; then
+                    echo "NVIDIA 驱动程序卸载成功。"
+                else
+                    echo "NVIDIA 驱动程序再次卸载失败。请检查错误信息。"
+                    exit 1
+                fi
+                sudo apt-get autoremove -y
+                sudo apt-get autoclean -y
+            fi
+            echo "开始重装驱动......"
+            install_Driver
+        fi
+    fi
+
+    check_and_install_toolkit
+    check_and_install_cuda
     log_success "NVIDIA Docker支持安装完成"
 }
 # 测试安装
