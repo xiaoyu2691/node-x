@@ -731,7 +731,7 @@ LOCATION=$(curl -s "http://ip-api.com/json/$IP_ADDRESS" | jq -r '.country')
 
 # 输出结果
 if [ "$docker_installed" = true ] && [ "$nvidia_docker_installed" = true ]; then
-    echo "Docker 和 NVIDIA Docker 都已安装，$$docker_installed,$nvidia_docker_installed"
+    echo "Docker 和 NVIDIA Docker 都已安装，$docker_installed,$nvidia_docker_installed"
 else
     echo "NVIDIA Docker 未安装，现在开始安装......"
     if [ "$LOCATION" == "China" ]; then
