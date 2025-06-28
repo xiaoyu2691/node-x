@@ -246,6 +246,7 @@ check_and_install_toolkit() {
 
         # 更新APT包索引
         sudo apt-get update
+	
 
         # 安装NVIDIA Container Toolkit和CUDA
         DEBIAN_FRONTEND=noninteractive sudo apt-get install -y nvidia-container-toolkit nvidia-container-runtime
@@ -283,7 +284,7 @@ check_and_install_toolkit() {
 }
 EOF
         fi
-        
+        sudo apt install -y nvidia-docker2
         # 重启Docker服务
         systemctl restart docker
         
@@ -583,6 +584,8 @@ if ! dpkg -l | grep -q nvidia-container-toolkit; then
     # 安装NVIDIA Container Toolkit和CUDA
     DEBIAN_FRONTEND=noninteractive sudo apt-get install -y nvidia-container-toolkit
     DEBIAN_FRONTEND=noninteractive sudo apt install -y nvidia-cuda-toolkit
+    sudo apt update -y
+    sudo apt install -y nvidia-docker2
 
     # 配置Docker使用NVIDIA运行时
     nvidia-ctk runtime configure --runtime=docker
@@ -717,8 +720,7 @@ else
     docker_installed=false
 fi
 
-# 检查 NVIDIA Docker
-if command -V nvcc &> /dev/null; then
+if dpkg -l | grep -q nvidia-docker2; then
     nvidia_docker_installed=true
 else
     nvidia_docker_installed=false
