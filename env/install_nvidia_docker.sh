@@ -722,7 +722,7 @@ else
     docker_installed=false
 fi
 
-if dpkg -l | grep -q nvidia-docker2; then
+if command -V nvcc &> /dev/null; then
     nvidia_docker_installed=true
 else
     nvidia_docker_installed=false
