@@ -346,7 +346,6 @@ install_nvidia_docker() {
     if [[ "$HAS_NVIDIA_DRIVER" != "true" ]]; then
         echo "驱动未安装，开始安装......"
 	sudo apt update -y
-	sudo ubuntu-drivers install
         install_Driver
     else
         echo "驱动已安装，检查已安装驱动是否与显卡匹配"
