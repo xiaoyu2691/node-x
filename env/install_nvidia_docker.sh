@@ -238,7 +238,8 @@ eyring.gpg --yes
             if gpg --list-keys --keyring /usr/share/keyrings/docker-archive-keyring.gpg &>/dev/null; then
                 echo "Docker GPG 密钥源下载成功。"
                 echo "配置相应的APT源"
-                echo -e "deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://mirrors.ustc.edu.cn/libnvidia-iner/stable/deb/\$(ARCH) /\n#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://mirrors.ustc.edu.cn/libnvidia-iner/experimental/deb/\$(ARCH) /" | sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
+                ARCH=$(dpkg --print-architecture)
+		echo -e "deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://mirrors.ustc.edu.cn/libnvidia-container/stable/deb/$ARCH /\n#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://mirrors.ustc.edu.cn/libnvidia-container/experimental/deb/$ARCH /" | sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
             else
                 echo "GPG 密钥源安装失败，请手动查找可用的 GPG 密钥源。"
                 exit 1
