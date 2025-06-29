@@ -217,7 +217,8 @@ check_and_install_toolkit() {
             attempt=0
 
             while [ $attempt -lt $max_retries ]; do
-                curl -fsSL https://mirrors.ustc.edu.cn/libnvidia-iner/gpgkey | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg --yes
+                curl -fsSL https://mirrors.ustc.edu.cn/libnvidia-container/gpgkey | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-k
+eyring.gpg --yes
 
                 if [ $? -eq 0 ]; then
                     echo "下载成功!"
