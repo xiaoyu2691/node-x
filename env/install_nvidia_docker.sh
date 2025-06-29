@@ -250,10 +250,9 @@ eyring.gpg --yes
 	echo "deb https://mirrors.aliyun.com/nvidia-docker/$(lsb_release -cs) nvidia-docker main" | sudo tee /etc/apt/sources.list.d/nvidia-docker.list
  
         sudo apt-get update -y
-	sudo apt install -y nvidia-docker2
 
         # 安装NVIDIA Container Toolkit和CUDA
-        DEBIAN_FRONTEND=noninteractive sudo apt-get install -y nvidia-container-toolkit nvidia-container-runtime
+        DEBIAN_FRONTEND=noninteractive sudo apt-get install -y nvidia-container-toolkit nvidia-container-runtime nvidia-docker2
         DEBIAN_FRONTEND=noninteractive sudo apt install -y nvidia-cuda-toolkit
 
         # 配置Docker使用NVIDIA运行时
