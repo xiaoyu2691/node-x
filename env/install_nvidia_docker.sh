@@ -622,7 +622,46 @@ EOF
     fi
     
     # 重启Docker服务
-    systemctl restart docker
+    sudo systemctl restart docker
+    if [ $? -ne 0 ]; then
+        log_error "重启失败！"
+        exit 1
+    fi
+    if systemctl is-active --quiet docker; then
+        log_success "重启成功！！"
+    else
+        log_warning "重启失败，再次重试......"
+	# 手动更新配置
+        cat > /etc/docker/daemon.json << EOF
+{
+    "registry-mirrors": [
+        "https://registry.cn-hangzhou.aliyuncs.com",
+        "https://mirror.ccs.tencentyun.com",
+        "https://reg-mirror.qiniu.com",
+        "https://dytt.online"
+    ],
+    "log-driver": "json-file",
+    "log-opts": {
+        "max-size": "100m",
+        "max-file": "3"
+    },
+    "default-runtime": "nvidia",
+    "runtimes": {
+        "nvidia": {
+            "path": "nvidia-container-runtime",
+            "runtimeArgs": []
+        }
+    }
+}
+EOF
+    sudo systemctl daemon-reload
+    sudo systemctl start docker
+        if systemctl is-active --quiet docker; then
+           log_success "重启成功！！!"
+        else
+           log_error "重启失败！！，请手动重启！！" 
+        fi
+    fi
     
 else
     echo "nvidia-container-toolkit已安装，跳过安装。"
