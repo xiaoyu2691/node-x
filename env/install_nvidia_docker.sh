@@ -510,11 +510,6 @@ function domestic_docker_install() {
     "registry-mirrors": [
         "https://docker.1panel.live/",
         "https://docker.1ms.run/",
-        "https://dytt.online",
-        "https://lispy.org",
-        "docker.xiaogenban1993.com",
-        "https://docker-0.unsee.tech",
-        "666860.xyz",
         "https://docker.m.daocloud.io"
     ],
     "log-driver": "json-file",
@@ -786,21 +781,61 @@ else
     nvidia_docker_installed=false
 fi
 
-# 获取本地IP地址
-IP_ADDRESS=$(curl -s http://ipinfo.io/ip)
-# 获取IP地址的地理位置
-LOCATION=$(curl -s "http://ip-api.com/json/$IP_ADDRESS" | jq -r '.country')
+# 检测是否配置了代理
+is_proxy_configured() {
+    # 检查常见的代理环境变量
+    if [ -n "$HTTP_PROXY" ] || [ -n "$HTTPS_PROXY" ] || [ -n "$http_proxy" ] || [ -n "$https_proxy" ]; then
+        return 0
+    fi
+    
+    # 检查常见的梯子软件进程
+    if pgrep -x "v2ray" > /dev/null || pgrep -x "clash" > /dev/null || pgrep -x "shadowsocks" > /dev/null || pgrep -x "ssr" > /dev/null; then
+        return 0
+    fi
+    
+    # 检查常见的代理配置文件
+    if [ -f "/etc/systemd/system/docker.service.d/http-proxy.conf" ]; then
+        return 0
+    fi
+    
+    return 1
+}
+
+# 判断是否为国内服务器
+is_domestic=false
+
+if is_proxy_configured; then
+    log_info "检测到代理配置,默认判定为国内服务器"
+    is_domestic=true
+else
+    # 获取本地IP地址
+    IP_ADDRESS=$(curl -s http://ipinfo.io/ip)
+    
+    if [ -n "$IP_ADDRESS" ]; then
+        # 获取IP地址的地理位置
+        LOCATION=$(curl -s "http://ip-api.com/json/${IP_ADDRESS}" | jq -r '.country')
+        
+        if [ "$LOCATION" == "China" ]; then
+            log_info "检测为国内IP: $IP_ADDRESS"
+            is_domestic=true
+        else
+            log_info "检测为国外IP: $IP_ADDRESS (位置: $LOCATION)"
+            is_domestic=false
+        fi
+    else
+        log_info "无法获取IP地址,默认判定为国内服务器"
+        is_domestic=true
+    fi
+fi
 
 # 输出结果
 if [ "$docker_installed" = true ] && [ "$nvidia_docker_installed" = true ]; then
     echo "Docker 和 NVIDIA Docker 都已安装，$docker_installed,$nvidia_docker_installed"
 else
     echo "NVIDIA Docker 未安装，现在开始安装......$docker_installed,$nvidia_docker_installed"
-    if [ "$LOCATION" == "China" ]; then
-    	log_info "检测为国内IP"
-    	domestic_docker_install
+    if [ "$is_domestic" = true ]; then
+        domestic_docker_install
     else
-    	log_info "检测为国外IP"
-    	foreign_docker_install
+        foreign_docker_install
     fi
 fi
