@@ -152,7 +152,7 @@ detect_location() {
 }
 
 # 检测显卡信息
-detect_gpu_info() {
+detect_gpu() {
     local nvidia_found=false
     
     # 方法1: 使用 lspci (最常用)
