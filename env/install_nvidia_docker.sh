@@ -152,48 +152,106 @@ detect_location() {
 }
 
 # 检测显卡信息
-detect_gpu() {
-    log_info "检测显卡信息..."
+detect_gpu_info() {
+    local nvidia_found=false
     
-    if ! command -v lspci >/dev/null 2>&1; then
-        log_warning "lspci命令不可用，尝试安装 pciutils"
-        sudo apt-get install -y pciutils 2>/dev/null || true
-    fi
-    
-    # 检测NVIDIA显卡
+    # 方法1: 使用 lspci (最常用)
     if command -v lspci >/dev/null 2>&1; then
         local nvidia_gpus
-        nvidia_gpus=$(lspci 2>/dev/null | grep -i nvidia | grep -i vga)
+        # 使用更宽松的匹配模式，包括 VGA、3D、Display 等
+        nvidia_gpus=$(lspci 2>/dev/null | grep -iE 'nvidia.*(vga|3d|display)')
         
         if [[ -n "$nvidia_gpus" ]]; then
+            nvidia_found=true
             HAS_NVIDIA=true
-            log_success "检测到NVIDIA显卡:"
+            log_success "检测到NVIDIA显卡 (lspci):"
             echo "$nvidia_gpus" | sed 's/^/  /'
-            
-            # 检测NVIDIA驱动
-            if command -v nvidia-smi >/dev/null 2>&1; then
-                NVIDIA_DRIVER_VERSION=$(nvidia-smi --query-gpu=driver_version --format=csv,noheader,nounits 2>/dev/null | head -1)
-                CUDA_VERSION=$(nvidia-smi 2>/dev/null | grep -oP 'CUDA Version: \K[0-9.]+' || echo "")
-                
-                if [[ -n "$NVIDIA_DRIVER_VERSION" ]]; then
-                    log_success "NVIDIA驱动版本: $NVIDIA_DRIVER_VERSION"
-                    [[ -n "$CUDA_VERSION" ]] && log_success "CUDA版本: $CUDA_VERSION"
-                    HAS_NVIDIA_DRIVER=true
-                else
-                    log_info "nvidia-smi可用但无法获取版本信息"
-                    HAS_NVIDIA_DRIVER=false
-                fi
-            else
-                log_info "未检测到NVIDIA驱动"
-                HAS_NVIDIA_DRIVER=false
-            fi
-        else
-            HAS_NVIDIA=false
-            log_info "未检测到NVIDIA显卡"
         fi
     else
-        log_warning "无法检测显卡，假设无NVIDIA显卡"
+        log_warning "lspci命令不可用，尝试安装 pciutils"
+        if sudo apt-get update >/dev/null 2>&1 && sudo apt-get install -y pciutils >/dev/null 2>&1; then
+            log_success "pciutils 安装成功，重新检测"
+            nvidia_gpus=$(lspci 2>/dev/null | grep -iE 'nvidia.*(vga|3d|display)')
+            [[ -n "$nvidia_gpus" ]] && nvidia_found=true && HAS_NVIDIA=true
+        fi
+    fi
+    
+    # 方法2: 检查 /proc/driver/nvidia (如果驱动已安装)
+    if [[ ! "$nvidia_found" = true ]] && [[ -d /proc/driver/nvidia ]]; then
+        nvidia_found=true
+        HAS_NVIDIA=true
+        log_success "通过 /proc/driver/nvidia 检测到NVIDIA显卡"
+    fi
+    
+    # 方法3: 检查 nvidia-smi (如果驱动已安装)
+    if [[ ! "$nvidia_found" = true ]] && command -v nvidia-smi >/dev/null 2>&1; then
+        if nvidia-smi >/dev/null 2>&1; then
+            nvidia_found=true
+            HAS_NVIDIA=true
+            log_success "通过 nvidia-smi 检测到NVIDIA显卡"
+        fi
+    fi
+    
+    # 方法4: 检查系统设备文件
+    if [[ ! "$nvidia_found" = true ]] && ls /dev/nvidia* >/dev/null 2>&1; then
+        nvidia_found=true
+        HAS_NVIDIA=true
+        log_success "通过设备文件检测到NVIDIA显卡"
+    fi
+    
+    # 方法5: 检查 lshw (备用方法)
+    if [[ ! "$nvidia_found" = true ]] && command -v lshw >/dev/null 2>&1; then
+        local nvidia_lshw
+        nvidia_lshw=$(sudo lshw -C display 2>/dev/null | grep -i nvidia)
+        if [[ -n "$nvidia_lshw" ]]; then
+            nvidia_found=true
+            HAS_NVIDIA=true
+            log_success "通过 lshw 检测到NVIDIA显卡"
+        fi
+    fi
+    
+    # 如果没有找到NVIDIA显卡
+    if [[ ! "$nvidia_found" = true ]]; then
         HAS_NVIDIA=false
+        log_info "未检测到NVIDIA显卡"
+    fi
+    
+    # 检测NVIDIA驱动和CUDA版本
+    HAS_NVIDIA_DRIVER=false
+    
+    if command -v nvidia-smi >/dev/null 2>&1; then
+        # 尝试运行 nvidia-smi
+        if nvidia-smi >/dev/null 2>&1; then
+            NVIDIA_DRIVER_VERSION=$(nvidia-smi --query-gpu=driver_version --format=csv,noheader,nounits 2>/dev/null | head -1 | tr -d '[:space:]')
+            CUDA_VERSION=$(nvidia-smi 2>/dev/null | grep -oP 'CUDA Version: \K[0-9.]+' | head -1)
+            
+            if [[ -n "$NVIDIA_DRIVER_VERSION" ]]; then
+                log_success "NVIDIA驱动版本: $NVIDIA_DRIVER_VERSION"
+                HAS_NVIDIA_DRIVER=true
+                
+                if [[ -n "$CUDA_VERSION" ]]; then
+                    log_success "CUDA版本: $CUDA_VERSION"
+                fi
+                
+                # 显示GPU详细信息
+                log_info "GPU详细信息:"
+                nvidia-smi --query-gpu=name,memory.total --format=csv,noheader 2>/dev/null | sed 's/^/  /'
+            else
+                log_warning "nvidia-smi可用但无法获取驱动版本"
+            fi
+        else
+            log_warning "nvidia-smi命令存在但执行失败 (可能需要sudo权限或驱动未正确加载)"
+        fi
+    else
+        log_info "未安装nvidia-smi (NVIDIA驱动未安装)"
+    fi
+    
+    # 检查内核模块
+    if lsmod 2>/dev/null | grep -q nvidia; then
+        log_success "NVIDIA内核模块已加载"
+        lsmod | grep nvidia | sed 's/^/  /'
+    else
+        log_info "NVIDIA内核模块未加载"
     fi
 }
 
