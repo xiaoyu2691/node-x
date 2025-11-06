@@ -38,6 +38,10 @@ IS_DOMESTIC=false
 HAS_NVIDIA=false
 HAS_NVIDIA_DRIVER=false
 NEED_REBOOT=false
+PROXY_CONFIGURED=false
+DRIVER_VERIFIED=false
+DOCKER_INSTALLED=false
+NVIDIA_TOOLKIT_INSTALLED=false
 
 # ============================================
 # 环境检测函数
@@ -76,71 +80,74 @@ detect_system() {
 
 # 检测是否配置了代理
 is_proxy_configured() {
+    PROXY_CONFIGURED=false
+    
     # 检查环境变量
     if [[ -n "$HTTP_PROXY" ]] || [[ -n "$HTTPS_PROXY" ]] || \
        [[ -n "$http_proxy" ]] || [[ -n "$https_proxy" ]] || \
        [[ -n "$ALL_PROXY" ]] || [[ -n "$all_proxy" ]]; then
-        return 0
+        PROXY_CONFIGURED=true
     fi
     
     # 检查梯子软件进程
-    local proxy_processes=("v2ray" "clash" "shadowsocks" "ssr" "xray" "trojan")
-    for proc in "${proxy_processes[@]}"; do
-        if pgrep -x "$proc" > /dev/null 2>&1; then
-            return 0
-        fi
-    done
+    if [[ "$PROXY_CONFIGURED" == "false" ]]; then
+        local proxy_processes=("v2ray" "clash" "shadowsocks" "ssr" "xray" "trojan")
+        for proc in "${proxy_processes[@]}"; do
+            if pgrep -x "$proc" > /dev/null 2>&1; then
+                PROXY_CONFIGURED=true
+                break
+            fi
+        done
+    fi
     
     # 检查Docker代理配置
-    if [[ -f "/etc/systemd/system/docker.service.d/http-proxy.conf" ]]; then
-        return 0
+    if [[ "$PROXY_CONFIGURED" == "false" ]] && [[ -f "/etc/systemd/system/docker.service.d/http-proxy.conf" ]]; then
+        PROXY_CONFIGURED=true
     fi
     
     # 检查系统代理配置文件
-    if [[ -f "$HOME/.bashrc" ]] && grep -q "proxy" "$HOME/.bashrc" 2>/dev/null; then
-        return 0
+    if [[ "$PROXY_CONFIGURED" == "false" ]] && [[ -f "$HOME/.bashrc" ]] && grep -q "proxy" "$HOME/.bashrc" 2>/dev/null; then
+        PROXY_CONFIGURED=true
     fi
-    
-    return 1
 }
 
 # 判断是否为国内服务器
 detect_location() {
     log_info "检测服务器地理位置..."
     
-    if is_proxy_configured; then
+    is_proxy_configured
+    
+    if [[ "$PROXY_CONFIGURED" == "true" ]]; then
         log_warning "检测到代理配置，默认判定为国内服务器"
         IS_DOMESTIC=true
-        return
-    fi
-    
-    # 尝试获取IP地址
-    local ip_address
-    ip_address=$(curl -s --connect-timeout 5 http://ipinfo.io/ip 2>/dev/null || \
-                 curl -s --connect-timeout 5 https://api.ipify.org 2>/dev/null || \
-                 curl -s --connect-timeout 5 https://ifconfig.me 2>/dev/null)
-    
-    if [[ -z "$ip_address" ]]; then
-        log_warning "无法获取IP地址，默认判定为国内服务器"
-        IS_DOMESTIC=true
-        return
-    fi
-    
-    log_info "检测到IP: $ip_address"
-    
-    # 获取地理位置
-    local location
-    location=$(curl -s --connect-timeout 5 "http://ip-api.com/json/${ip_address}" 2>/dev/null | jq -r '.country' 2>/dev/null)
-    
-    if [[ "$location" == "China" ]] || [[ "$location" == "CN" ]]; then
-        log_success "检测为国内服务器 (IP: $ip_address)"
-        IS_DOMESTIC=true
-    elif [[ -n "$location" ]] && [[ "$location" != "null" ]]; then
-        log_success "检测为国外服务器 (位置: $location, IP: $ip_address)"
-        IS_DOMESTIC=false
     else
-        log_warning "无法确定地理位置，默认判定为国内服务器"
-        IS_DOMESTIC=true
+        # 尝试获取IP地址
+        local ip_address
+        ip_address=$(curl -s --connect-timeout 5 http://ipinfo.io/ip 2>/dev/null || \
+                     curl -s --connect-timeout 5 https://api.ipify.org 2>/dev/null || \
+                     curl -s --connect-timeout 5 https://ifconfig.me 2>/dev/null)
+        
+        if [[ -z "$ip_address" ]]; then
+            log_warning "无法获取IP地址，默认判定为国内服务器"
+            IS_DOMESTIC=true
+        else
+            log_info "检测到IP: $ip_address"
+            
+            # 获取地理位置
+            local location
+            location=$(curl -s --connect-timeout 5 "http://ip-api.com/json/${ip_address}" 2>/dev/null | jq -r '.country' 2>/dev/null)
+            
+            if [[ "$location" == "China" ]] || [[ "$location" == "CN" ]]; then
+                log_success "检测为国内服务器 (IP: $ip_address)"
+                IS_DOMESTIC=true
+            elif [[ -n "$location" ]] && [[ "$location" != "null" ]]; then
+                log_success "检测为国外服务器 (位置: $location, IP: $ip_address)"
+                IS_DOMESTIC=false
+            else
+                log_warning "无法确定地理位置，默认判定为国内服务器"
+                IS_DOMESTIC=true
+            fi
+        fi
     fi
 }
 
@@ -162,33 +169,31 @@ detect_gpu() {
             HAS_NVIDIA=true
             log_success "检测到NVIDIA显卡:"
             echo "$nvidia_gpus" | sed 's/^/  /'
+            
+            # 检测NVIDIA驱动
+            if command -v nvidia-smi >/dev/null 2>&1; then
+                NVIDIA_DRIVER_VERSION=$(nvidia-smi --query-gpu=driver_version --format=csv,noheader,nounits 2>/dev/null | head -1)
+                CUDA_VERSION=$(nvidia-smi 2>/dev/null | grep -oP 'CUDA Version: \K[0-9.]+' || echo "")
+                
+                if [[ -n "$NVIDIA_DRIVER_VERSION" ]]; then
+                    log_success "NVIDIA驱动版本: $NVIDIA_DRIVER_VERSION"
+                    [[ -n "$CUDA_VERSION" ]] && log_success "CUDA版本: $CUDA_VERSION"
+                    HAS_NVIDIA_DRIVER=true
+                else
+                    log_info "nvidia-smi可用但无法获取版本信息"
+                    HAS_NVIDIA_DRIVER=false
+                fi
+            else
+                log_info "未检测到NVIDIA驱动"
+                HAS_NVIDIA_DRIVER=false
+            fi
         else
             HAS_NVIDIA=false
             log_info "未检测到NVIDIA显卡"
-            return
         fi
     else
         log_warning "无法检测显卡，假设无NVIDIA显卡"
         HAS_NVIDIA=false
-        return
-    fi
-    
-    # 检测NVIDIA驱动
-    if command -v nvidia-smi >/dev/null 2>&1; then
-        NVIDIA_DRIVER_VERSION=$(nvidia-smi --query-gpu=driver_version --format=csv,noheader,nounits 2>/dev/null | head -1)
-        CUDA_VERSION=$(nvidia-smi 2>/dev/null | grep -oP 'CUDA Version: \K[0-9.]+' || echo "")
-        
-        if [[ -n "$NVIDIA_DRIVER_VERSION" ]]; then
-            log_success "NVIDIA驱动版本: $NVIDIA_DRIVER_VERSION"
-            [[ -n "$CUDA_VERSION" ]] && log_success "CUDA版本: $CUDA_VERSION"
-            HAS_NVIDIA_DRIVER=true
-        else
-            log_info "nvidia-smi可用但无法获取版本信息"
-            HAS_NVIDIA_DRIVER=false
-        fi
-    else
-        log_info "未检测到NVIDIA驱动"
-        HAS_NVIDIA_DRIVER=false
     fi
 }
 
@@ -260,12 +265,13 @@ EOF
             ;;
         *)
             log_warning "未明确支持的系统: $OS，跳过镜像源配置"
-            return
             ;;
     esac
     
-    log_success "镜像源配置完成"
-    sudo apt-get update -qq
+    if [[ "$OS" == "ubuntu" ]] || [[ "$OS" == "debian" ]]; then
+        log_success "镜像源配置完成"
+        sudo apt-get update -qq
+    fi
 }
 
 # ============================================
@@ -273,8 +279,12 @@ EOF
 # ============================================
 
 # 检查Docker是否已安装
-is_docker_installed() {
-    command -v docker >/dev/null 2>&1
+check_docker_installed() {
+    if command -v docker >/dev/null 2>&1; then
+        DOCKER_INSTALLED=true
+    else
+        DOCKER_INSTALLED=false
+    fi
 }
 
 # 卸载旧版本Docker
@@ -330,6 +340,7 @@ install_docker_domestic() {
     sudo systemctl enable docker
     
     log_success "Docker安装完成: $(docker --version)"
+    DOCKER_INSTALLED=true
 }
 
 # 国外安装Docker
@@ -350,6 +361,7 @@ install_docker_foreign() {
     sudo systemctl enable docker
     
     log_success "Docker安装完成: $(docker --version)"
+    DOCKER_INSTALLED=true
 }
 
 # 配置Docker镜像加速（国内）
@@ -413,6 +425,8 @@ EOF
 
 # 验证驱动版本一致性
 verify_nvidia_driver() {
+    DRIVER_VERIFIED=false
+    
     local driver_version
     local nvml_version
     
@@ -421,15 +435,11 @@ verify_nvidia_driver() {
     
     if [[ -z "$driver_version" ]] || [[ -z "$nvml_version" ]]; then
         log_error "无法获取驱动版本信息"
-        return 1
-    fi
-    
-    if [[ "$driver_version" == "$nvml_version" ]]; then
+    elif [[ "$driver_version" == "$nvml_version" ]]; then
         log_success "驱动版本验证通过: $driver_version"
-        return 0
+        DRIVER_VERIFIED=true
     else
         log_error "驱动版本不匹配 - 内核: $driver_version, NVML: $nvml_version"
-        return 1
     fi
 }
 
@@ -449,7 +459,9 @@ install_nvidia_driver() {
     sudo modprobe nvidia 2>/dev/null || true
     
     # 验证驱动
-    if verify_nvidia_driver; then
+    verify_nvidia_driver
+    
+    if [[ "$DRIVER_VERIFIED" == "true" ]]; then
         log_success "NVIDIA驱动安装成功"
         HAS_NVIDIA_DRIVER=true
     else
@@ -479,9 +491,10 @@ ensure_nvidia_driver() {
     if [[ "$HAS_NVIDIA_DRIVER" == "true" ]]; then
         log_info "检查现有驱动一致性..."
         
-        if verify_nvidia_driver; then
+        verify_nvidia_driver
+        
+        if [[ "$DRIVER_VERIFIED" == "true" ]]; then
             log_success "现有驱动验证通过"
-            return 0
         else
             log_warning "驱动版本不一致，需要重新安装"
             remove_nvidia_driver
@@ -492,72 +505,85 @@ ensure_nvidia_driver() {
     fi
 }
 
+# 检查NVIDIA Container Toolkit是否已安装
+check_nvidia_toolkit_installed() {
+    if dpkg -l | grep -q nvidia-container-toolkit; then
+        NVIDIA_TOOLKIT_INSTALLED=true
+    else
+        NVIDIA_TOOLKIT_INSTALLED=false
+    fi
+}
+
 # 安装NVIDIA Container Toolkit（国内）
 install_nvidia_toolkit_domestic() {
     log_info "安装NVIDIA Container Toolkit（国内镜像）..."
     
-    if dpkg -l | grep -q nvidia-container-toolkit; then
+    check_nvidia_toolkit_installed
+    
+    if [[ "$NVIDIA_TOOLKIT_INSTALLED" == "true" ]]; then
         log_info "NVIDIA Container Toolkit已安装"
-        return 0
+    else
+        # 添加GPG密钥
+        if [[ ! -f /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg ]]; then
+            curl -fsSL https://mirrors.ustc.edu.cn/libnvidia-container/gpgkey | \
+                sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg
+        fi
+        
+        # 添加仓库
+        echo "deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://mirrors.ustc.edu.cn/libnvidia-container/stable/deb/$(dpkg --print-architecture) /" | \
+            sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list > /dev/null
+        
+        sudo apt-get update -qq
+        
+        # 安装
+        DEBIAN_FRONTEND=noninteractive sudo apt-get install -y \
+            nvidia-container-toolkit \
+            nvidia-container-runtime
+        
+        # 配置Docker运行时
+        sudo nvidia-ctk runtime configure --runtime=docker
+        
+        configure_docker_with_nvidia
+        
+        log_success "NVIDIA Container Toolkit安装完成"
+        NVIDIA_TOOLKIT_INSTALLED=true
     fi
-    
-    # 添加GPG密钥
-    if [[ ! -f /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg ]]; then
-        curl -fsSL https://mirrors.ustc.edu.cn/libnvidia-container/gpgkey | \
-            sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg
-    fi
-    
-    # 添加仓库
-    echo "deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://mirrors.ustc.edu.cn/libnvidia-container/stable/deb/$(dpkg --print-architecture) /" | \
-        sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list > /dev/null
-    
-    sudo apt-get update -qq
-    
-    # 安装
-    DEBIAN_FRONTEND=noninteractive sudo apt-get install -y \
-        nvidia-container-toolkit \
-        nvidia-container-runtime
-    
-    # 配置Docker运行时
-    sudo nvidia-ctk runtime configure --runtime=docker
-    
-    configure_docker_with_nvidia
-    
-    log_success "NVIDIA Container Toolkit安装完成"
 }
 
 # 安装NVIDIA Container Toolkit（国外）
 install_nvidia_toolkit_foreign() {
     log_info "安装NVIDIA Container Toolkit（官方源）..."
     
-    if dpkg -l | grep -q nvidia-container-toolkit; then
+    check_nvidia_toolkit_installed
+    
+    if [[ "$NVIDIA_TOOLKIT_INSTALLED" == "true" ]]; then
         log_info "NVIDIA Container Toolkit已安装"
-        return 0
+    else
+        # 添加GPG密钥和仓库
+        local distribution
+        distribution=$(. /etc/os-release; echo "$ID$VERSION_ID")
+        
+        curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | \
+            sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg
+        
+        curl -s -L "https://nvidia.github.io/libnvidia-container/$distribution/libnvidia-container.list" | \
+            sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' | \
+            sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list > /dev/null
+        
+        sudo apt-get update -qq
+        
+        # 安装
+        DEBIAN_FRONTEND=noninteractive sudo apt-get install -y \
+            nvidia-container-toolkit
+        
+        # 配置Docker运行时
+        sudo nvidia-ctk runtime configure --runtime=docker
+        
+        configure_docker_with_nvidia
+        
+        log_success "NVIDIA Container Toolkit安装完成"
+        NVIDIA_TOOLKIT_INSTALLED=true
     fi
-    
-    # 添加GPG密钥和仓库
-    local distribution
-    distribution=$(. /etc/os-release; echo "$ID$VERSION_ID")
-    
-    curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | \
-        sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg
-    
-    curl -s -L "https://nvidia.github.io/libnvidia-container/$distribution/libnvidia-container.list" | \
-        sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' | \
-        sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list > /dev/null
-    
-    sudo apt-get update -qq
-    
-    # 安装
-    DEBIAN_FRONTEND=noninteractive sudo apt-get install -y \
-        nvidia-container-toolkit
-    
-    # 配置Docker运行时
-    sudo nvidia-ctk runtime configure --runtime=docker
-    
-    configure_docker_with_nvidia
-    
-    log_success "NVIDIA Container Toolkit安装完成"
 }
 
 # 配置Docker使用NVIDIA运行时
@@ -616,10 +642,9 @@ EOF
     # 验证Docker重启
     if ! sudo systemctl is-active --quiet docker; then
         log_error "Docker重启失败"
-        return 1
+    else
+        log_success "Docker NVIDIA运行时配置完成"
     fi
-    
-    log_success "Docker NVIDIA运行时配置完成"
 }
 
 # ============================================
@@ -632,15 +657,10 @@ test_docker() {
     
     if ! sudo systemctl is-active --quiet docker; then
         log_error "Docker服务未运行"
-        return 1
-    fi
-    
-    if sudo docker run --rm hello-world >/dev/null 2>&1; then
+    elif sudo docker run --rm hello-world >/dev/null 2>&1; then
         log_success "Docker测试通过"
-        return 0
     else
         log_warning "Docker测试失败"
-        return 1
     fi
 }
 
@@ -650,10 +670,8 @@ test_nvidia_docker() {
     
     if sudo docker run --rm --gpus all nvidia/cuda:11.8.0-base-ubuntu20.04 nvidia-smi >/dev/null 2>&1; then
         log_success "NVIDIA Docker测试通过"
-        return 0
     else
         log_warning "NVIDIA Docker测试失败，可能需要重启系统"
-        return 1
     fi
 }
 
@@ -670,7 +688,8 @@ install_domestic() {
     configure_domestic_mirrors
     
     # 安装Docker
-    if ! is_docker_installed; then
+    check_docker_installed
+    if [[ "$DOCKER_INSTALLED" == "false" ]]; then
         install_docker_domestic
     else
         log_info "Docker已安装，跳过安装"
@@ -693,7 +712,8 @@ install_foreign() {
     install_dependencies
     
     # 安装Docker
-    if ! is_docker_installed; then
+    check_docker_installed
+    if [[ "$DOCKER_INSTALLED" == "false" ]]; then
         install_docker_foreign
     else
         log_info "Docker已安装，跳过安装"
