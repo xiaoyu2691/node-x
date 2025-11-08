@@ -116,7 +116,7 @@ detect_location() {
     log_info "检测服务器地理位置..."
     
     is_proxy_configured
-    
+    echo "11111"
     if [[ "$PROXY_CONFIGURED" == "true" ]]; then
         log_warning "检测到代理配置，默认判定为国内服务器"
         IS_DOMESTIC=true
