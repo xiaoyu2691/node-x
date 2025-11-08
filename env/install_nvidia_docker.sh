@@ -112,11 +112,11 @@ is_proxy_configured() {
 }
 
 # 判断是否为国内服务器
-detect_location() {
+function detect_location() {
     log_info "检测服务器地理位置..."
     
     is_proxy_configured
-    echo "11111"
+    
     if [[ "$PROXY_CONFIGURED" == "true" ]]; then
         log_warning "检测到代理配置，默认判定为国内服务器"
         IS_DOMESTIC=true
@@ -152,7 +152,7 @@ detect_location() {
 }
 
 # 检测显卡信息
-detect_gpu() {
+function detect_gpu() {
     local nvidia_found=false
     
     # 方法1: 使用 lspci (最常用)
