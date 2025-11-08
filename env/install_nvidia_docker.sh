@@ -851,9 +851,11 @@ main() {
 if command -v nvidia-smi &> /dev/null && nvidia-smi &> /dev/null; then
     # 服务器存在显卡
     HAS_GPU=true
+    log_info "存在显卡"
 else
     # 服务器不存在显卡
     HAS_GPU=false
+    log_info "不存在显卡"
 fi
 
 # 检查是否安装 Docker
