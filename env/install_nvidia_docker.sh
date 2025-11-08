@@ -846,22 +846,77 @@ main() {
     # 环境检测
     detect_location
     detect_gpu
-    
-    # 根据位置选择安装策略
-    if [[ "$IS_DOMESTIC" == "true" ]]; then
-        install_domestic
+
+    # 检查是否存在 NVIDIA GPU
+if command -v nvidia-smi &> /dev/null && nvidia-smi &> /dev/null; then
+    # 服务器存在显卡
+    HAS_GPU=true
+else
+    # 服务器不存在显卡
+    HAS_GPU=false
+fi
+
+# 检查是否安装 Docker
+if command -v docker &> /dev/null && systemctl is-active --quiet docker 2>/dev/null; then
+    DOCKER_INSTALLED=true
+else
+    DOCKER_INSTALLED=false
+fi
+
+# 检查 Docker 是否能访问显卡（仅在有显卡且 Docker 已安装时检查）
+if [ "$HAS_GPU" = true ] && [ "$DOCKER_INSTALLED" = true ]; then
+    if docker run --rm --gpus all nvidia/cuda:11.8.0-base-ubuntu22.04 nvidia-smi &> /dev/null; then
+        GPU_ACCESSIBLE=true
     else
-        install_foreign
+        GPU_ACCESSIBLE=false
     fi
+else
+    GPU_ACCESSIBLE=false
+fi
+
+# 根据条件返回结果
+if [ "$HAS_GPU" = true ]; then
+    # 存在显卡的情况
+    if [ "$DOCKER_INSTALLED" = false ] || [ "$GPU_ACCESSIBLE" = false ]; then
+            # 根据位置选择安装策略
+            if [[ "$IS_DOMESTIC" == "true" ]]; then
+                install_domestic
+            else
+                install_foreign
+            fi
     
-    # 测试安装
-    echo ""
-    test_docker
+            # 测试安装
+            echo ""
+            test_docker
     
-    if [[ "$HAS_NVIDIA" == "true" ]] && [[ "$HAS_NVIDIA_DRIVER" == "true" ]]; then
-        test_nvidia_docker
+            if [[ "$HAS_NVIDIA" == "true" ]] && [[ "$HAS_NVIDIA_DRIVER" == "true" ]]; then
+                test_nvidia_docker
+            fi
+    else
+        log_info "检查通过"
     fi
+else
+    # 不存在显卡的情况
+    if [ "$DOCKER_INSTALLED" = false ]; then
+            # 根据位置选择安装策略
+            if [[ "$IS_DOMESTIC" == "true" ]]; then
+                install_domestic
+            else
+                install_foreign
+            fi
     
+            # 测试安装
+            echo ""
+            test_docker
+    
+            if [[ "$HAS_NVIDIA" == "true" ]] && [[ "$HAS_NVIDIA_DRIVER" == "true" ]]; then
+                test_nvidia_docker
+            fi
+    else
+        log_info "检查通过"
+    fi
+fi
+
     # 显示摘要
     show_summary
 }
