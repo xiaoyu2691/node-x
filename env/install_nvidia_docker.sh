@@ -848,38 +848,44 @@ main() {
     detect_gpu
 
     # 检查是否存在 NVIDIA GPU
-if command -v nvidia-smi &> /dev/null && nvidia-smi &> /dev/null; then
-    # 服务器存在显卡
-    HAS_GPU=true
-    log_info "存在显卡"
-else
-    # 服务器不存在显卡
-    HAS_GPU=false
-    log_info "不存在显卡"
-fi
+    if command -v nvidia-smi &> /dev/null && nvidia-smi &> /dev/null; then
+        # 服务器存在显卡
+        HAS_GPU=true
+    else
+        # 服务器不存在显卡
+        HAS_GPU=false
+    fi
 
-# 检查是否安装 Docker
-if command -v docker &> /dev/null && systemctl is-active --quiet docker 2>/dev/null; then
-    DOCKER_INSTALLED=true
-else
-    DOCKER_INSTALLED=false
-fi
+    # 检查是否安装 Docker
+    if command -v docker &> /dev/null; then
+        # Docker 命令存在，进一步检查是否可用
+        if docker ps &> /dev/null; then
+            DOCKER_INSTALLED=true
+        elif systemctl is-active --quiet docker 2>/dev/null; then
+            # 有 systemd 的情况（非 WSL）
+            DOCKER_INSTALLED=true
+        else
+            DOCKER_INSTALLED=false
+        fi
+    else
+        DOCKER_INSTALLED=false
+    fi
 
-# 检查 Docker 是否能访问显卡（仅在有显卡且 Docker 已安装时检查）
-if [ "$HAS_GPU" = true ] && [ "$DOCKER_INSTALLED" = true ]; then
-    if docker run --rm --gpus all nvidia/cuda:11.8.0-base-ubuntu22.04 nvidia-smi &> /dev/null; then
-        GPU_ACCESSIBLE=true
+    # 检查 Docker 是否能访问显卡（仅在有显卡且 Docker 已安装时检查）
+    if [ "$HAS_GPU" = true ] && [ "$DOCKER_INSTALLED" = true ]; then
+        if docker run --rm --gpus all nvidia/cuda:11.8.0-base-ubuntu22.04 nvidia-smi &> /dev/null; then
+            GPU_ACCESSIBLE=true
+        else
+            GPU_ACCESSIBLE=false
+        fi
     else
         GPU_ACCESSIBLE=false
     fi
-else
-    GPU_ACCESSIBLE=false
-fi
 
-# 根据条件返回结果
-if [ "$HAS_GPU" = true ]; then
-    # 存在显卡的情况
-    if [ "$DOCKER_INSTALLED" = false ] || [ "$GPU_ACCESSIBLE" = false ]; then
+    # 根据条件返回结果
+    if [ "$HAS_GPU" = true ]; then
+        # 存在显卡的情况
+        if [ "$DOCKER_INSTALLED" = false ] || [ "$GPU_ACCESSIBLE" = false ]; then
             # 根据位置选择安装策略
             if [[ "$IS_DOMESTIC" == "true" ]]; then
                 install_domestic
@@ -894,12 +900,12 @@ if [ "$HAS_GPU" = true ]; then
             if [[ "$HAS_NVIDIA" == "true" ]] && [[ "$HAS_NVIDIA_DRIVER" == "true" ]]; then
                 test_nvidia_docker
             fi
+        else
+            log_info "存在显卡，检查通过"
+        fi
     else
-        log_info "检查通过"
-    fi
-else
-    # 不存在显卡的情况
-    if [ "$DOCKER_INSTALLED" = false ]; then
+        # 不存在显卡的情况
+        if [ "$DOCKER_INSTALLED" = false ]; then
             # 根据位置选择安装策略
             if [[ "$IS_DOMESTIC" == "true" ]]; then
                 install_domestic
@@ -914,10 +920,10 @@ else
             if [[ "$HAS_NVIDIA" == "true" ]] && [[ "$HAS_NVIDIA_DRIVER" == "true" ]]; then
                 test_nvidia_docker
             fi
-    else
-        log_info "检查通过"
+        else
+            log_info "不存在显卡，检查通过"
+        fi
     fi
-fi
 
     # 显示摘要
     show_summary
